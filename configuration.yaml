@@ -1,0 +1,19 @@
+
+# Validating the configuration
+homeassistant:
+  name: Home
+  unit_system: metric
+  # Time zone and location are usually set in UI, but can be here
+  time_zone: Europe/Paris
+
+# Configure a default setup of Home Assistant (frontend, api, etc)
+default_config:
+
+# Text to speech
+tts:
+  - platform: google_translate
+
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml

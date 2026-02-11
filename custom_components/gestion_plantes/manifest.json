@@ -1,0 +1,14 @@
+{
+  "domain": "gestion_plantes",
+  "name": "Gestion des Plantes",
+  "version": "1.0.0",
+  "documentation": "https://github.com/lou270/ha-chore-reminder",
+  "issue_tracker": "https://github.com/lou270/ha-chore-reminder/issues",
+  "requirements": [],
+  "dependencies": [],
+  "codeowners": [
+    "@votre-user"
+  ],
+  "iot_class": "local_polling",
+  "config_flow": true
+}
