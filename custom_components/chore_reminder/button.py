@@ -29,6 +29,8 @@ class ChoreCompleteButton(ButtonEntity):
         self._attr_name = f"{chore_entity.name} Fait"
         self._attr_unique_id = f"{chore_entity.entry.entry_id}_complete_button"
         self._attr_device_info = chore_entity.device_info
+        if chore_entity.image:
+            self._attr_entity_picture = chore_entity.image
 
     async def async_press(self) -> None:
         """Handle the button press."""

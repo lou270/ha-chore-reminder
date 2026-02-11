@@ -33,6 +33,8 @@ class ChoreDueSensor(BinarySensorEntity):
         self._attr_name = f"{chore_entity.name} À faire"
         self._attr_unique_id = f"{chore_entity.entry.entry_id}_due"
         self._attr_device_info = chore_entity.device_info
+        if chore_entity.image:
+            self._attr_entity_picture = chore_entity.image
 
     async def async_added_to_hass(self) -> None:
         """Run when this Entity has been added to HA."""

@@ -7,7 +7,8 @@
                 "data": {
                     "name": "Chore Name",
                     "frequency": "Frequency (days)",
-                    "icon": "Icon (optional, e.g. mdi:broom)"
+                    "icon": "Icon (optional, e.g. mdi:broom)",
+                    "image": "Image URL (optional, http://...)"
                 }
             }
         },

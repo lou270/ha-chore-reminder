@@ -9,7 +9,7 @@ Intégration personnalisée pour gérer vos tâches ménagères récurrentes dan
 -   **Suivi** : Calcul automatique des jours restants avant la prochaine échéance.
 -   **Alertes** : Capteur "Problème" quand la tâche est à faire.
 -   **Action** : Bouton pour marquer comme fait.
--   **Icônes** : Personnalisables pour chaque tâche.
+-   **Icônes/Images** : Personnalisables pour chaque tâche (Icône MDI ou URL d'image).
 
 ## Installation
 

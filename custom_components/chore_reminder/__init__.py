@@ -7,7 +7,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 
-from .const import DOMAIN, CONF_FREQUENCY, DEFAULT_FREQUENCY, CONF_ICON
+from .const import DOMAIN, CONF_FREQUENCY, DEFAULT_FREQUENCY, CONF_ICON, CONF_IMAGE
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -69,6 +69,10 @@ class ChoreEntity:
     def icon(self):
         # Default icon if none provided
         return self.entry.data.get(CONF_ICON) or "mdi:checkbox-marked-circle-outline"
+
+    @property
+    def image(self):
+        return self.entry.data.get(CONF_IMAGE)
 
     @property
     def last_completed(self):
