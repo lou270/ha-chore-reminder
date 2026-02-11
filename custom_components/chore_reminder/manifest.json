@@ -1,6 +1,6 @@
 {
-  "domain": "gestion_plantes",
-  "name": "Gestion des Plantes",
+  "domain": "chore_reminder",
+  "name": "Chore Reminder",
   "version": "1.0.0",
   "documentation": "https://github.com/lou270/ha-chore-reminder",
   "issue_tracker": "https://github.com/lou270/ha-chore-reminder/issues",

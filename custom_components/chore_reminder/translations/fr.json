@@ -1,0 +1,21 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Ajouter une tâche",
+                "description": "Configurez votre tâche ménagère",
+                "data": {
+                    "name": "Nom de la tâche",
+                    "frequency": "Fréquence (jours)",
+                    "icon": "Icône (optionnel, ex: mdi:broom)"
+                }
+            }
+        },
+        "error": {
+            "auth": "Erreur d'authentification"
+        },
+        "abort": {
+            "already_configured": "Cette tâche est déjà configurée"
+        }
+    }
+}

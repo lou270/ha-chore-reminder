@@ -1,37 +1,32 @@
-# Gestion des Plantes (Home Assistant Integration)
+# Chore Reminder (Home Assistant Integration)
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
 
-Intégration personnalisée pour gérer l'arrosage de vos plantes dans Home Assistant.
+Intégration personnalisée pour gérer vos tâches ménagères récurrentes dans Home Assistant.
 
 ## Fonctionnalités
--   **Ajout facile** : Configuration via l'interface utilisateur (UI).
--   **Suivi** : Calcul automatique des jours restants avant le prochain arrosage.
--   **Alertes** : Capteur binaire "Problème" quand la plante a besoin d'eau.
--   **Action** : Bouton pour valider l'arrosage et réinitialiser le chronomètre.
--   **Persistance** : La date du dernier arrosage est conservée même après redémarrage.
+-   **Tâches Récurrentes** : Configurez des tâches avec une fréquence en jours.
+-   **Suivi** : Calcul automatique des jours restants avant la prochaine échéance.
+-   **Alertes** : Capteur "Problème" quand la tâche est à faire.
+-   **Action** : Bouton pour marquer comme fait.
+-   **Icônes** : Personnalisables pour chaque tâche.
 
 ## Installation
 
-### Via HACS (Recommandé)
-1.  Assurez-vous d'avoir [HACS](https://hacs.xyz/) installé.
-2.  Ajoutez ce dépôt en tant que **Dépôt personnalisé** :
-    -   Allez dans HACS > Intégrations.
-    -   Cliquez sur les 3 points en haut à droite > Dépôts personnalisés.
-    -   Collez l'URL de ce dépôt et choisissez la catégorie **"Integration"**.
-3.  Cliquez sur **Télécharger**.
-4.  Redémarrez Home Assistant.
+### Via HACS
+1.  Ajoutez ce dépôt en tant que **Dépôt personnalisé** dans HACS.
+2.  Installez l'intégration **Chore Reminder**.
+3.  Redémarrez Home Assistant.
 
 ### Manuelle
-1.  Téléchargez le dossier `custom_components/gestion_plantes`.
-2.  Copiez-le dans votre dossier `config/custom_components/`.
-3.  Redémarrez Home Assistant.
+1.  Copiez `custom_components/chore_reminder` dans votre dossier `config/custom_components/`.
+2.  Redémarrez Home Assistant.
 
 ## Configuration
 1.  Allez dans **Paramètres** > **Appareils et services**.
 2.  Cliquez sur **Ajouter une intégration**.
-3.  Cherchez **"Gestion des Plantes"**.
-4.  Suivez les instructions pour ajouter vos plantes (Nom, Intervalle, Image).
+3.  Cherchez **"Chore Reminder"**.
+4.  Ajoutez vos tâches (Nom, Fréquence, Icône).
 
-## Cartes Lovelace (Exemples)
-Voir le fichier `lovelace_examples.yaml` ou le Wiki pour des exemples de cartes (Tuile, Mushroom, etc.).
+## Exemples de Cartes
+Voir `lovelace_examples.yaml`.

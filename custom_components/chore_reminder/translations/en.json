@@ -1,0 +1,21 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Add a Chore",
+                "description": "Configure your household chore",
+                "data": {
+                    "name": "Chore Name",
+                    "frequency": "Frequency (days)",
+                    "icon": "Icon (optional, e.g. mdi:broom)"
+                }
+            }
+        },
+        "error": {
+            "auth": "Authentication error"
+        },
+        "abort": {
+            "already_configured": "This chore is already configured"
+        }
+    }
+}
