@@ -89,14 +89,17 @@ class ChoreEntity:
     def is_due(self):
         return self.days_remaining <= 0
 
+    def set_last_completed(self, iso_string: str):
+        """Restore the chore state."""
+        self._last_completed = dt_util.parse_datetime(iso_string)
+        self.notify_listeners()
+
     def complete(self):
         """Mark the chore as completed."""
         self._last_completed = dt_util.now()
         
-        # Persist the new date to config entry
-        new_data = self.entry.data.copy()
-        new_data["last_completed"] = self._last_completed.isoformat()
-        self.hass.config_entries.async_update_entry(self.entry, data=new_data)
+        # We rely on RestoreSensor to save/restore this state safely
+        # Modifying config entry data here caused unexpected reloads.
         
         self.notify_listeners()
 

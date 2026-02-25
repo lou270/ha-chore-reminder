@@ -26,11 +26,11 @@ class ChoreCalendar(CalendarEntity):
     """Calendar entity for a chore."""
 
     _attr_has_entity_name = True
+    _attr_translation_key = "calendar"
 
     def __init__(self, chore: ChoreEntity) -> None:
         """Initialize the calendar entity."""
         self.chore = chore
-        self._attr_name = "Calendrier"
         self._attr_unique_id = f"{self.chore.entry.entry_id}_calendar"
         self._attr_device_info = self.chore.device_info
 
@@ -46,7 +46,6 @@ class ChoreCalendar(CalendarEntity):
             start=start,
             end=end,
             summary=self.chore.name,
-            description=f"Chore '{self.chore.name}' is due.",
         )
 
     async def async_get_events(
@@ -83,7 +82,6 @@ class ChoreCalendar(CalendarEntity):
                         start=current_date,
                         end=event_end,
                         summary=self.chore.name,
-                        description=f"Chore '{self.chore.name}' is due.",
                     )
                 )
                 

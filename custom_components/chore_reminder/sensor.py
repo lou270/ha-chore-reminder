@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Any
 from datetime import timedelta
 
-from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.sensor import SensorEntity, RestoreSensor
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -22,17 +22,17 @@ async def async_setup_entry(
     async_add_entities([ChoreDaysRemainingSensor(chore_entity)])
 
 
-class ChoreDaysRemainingSensor(SensorEntity):
+class ChoreDaysRemainingSensor(RestoreSensor):
     """Representation of a sensor that reports days remaining."""
 
     _attr_icon = "mdi:calendar-clock"
     _attr_native_unit_of_measurement = "jours"
     _attr_has_entity_name = True
+    _attr_translation_key = "days_remaining"
 
     def __init__(self, chore_entity: ChoreEntity) -> None:
         """Initialize the sensor."""
         self._chore = chore_entity
-        self._attr_name = "Jours restants"
         self._attr_unique_id = f"{chore_entity.entry.entry_id}_days_remaining"
         self._attr_device_info = chore_entity.device_info
         if chore_entity.image:
@@ -40,7 +40,16 @@ class ChoreDaysRemainingSensor(SensorEntity):
 
     async def async_added_to_hass(self) -> None:
         """Run when this Entity has been added to HA."""
+        await super().async_added_to_hass()
         self._chore.add_listener(self.async_write_ha_state)
+
+        # Restore previous state
+        last_state = await self.async_get_last_state()
+        if last_state and "last_completed" in last_state.attributes:
+            try:
+                self._chore.set_last_completed(last_state.attributes["last_completed"])
+            except Exception:
+                pass
 
     @property
     def native_value(self) -> int:

@@ -18,5 +18,27 @@
         "abort": {
             "already_configured": "This chore is already configured"
         }
+    },
+    "entity": {
+        "button": {
+            "complete_button": {
+                "name": "Complete"
+            }
+        },
+        "sensor": {
+            "days_remaining": {
+                "name": "Days remaining"
+            }
+        },
+        "binary_sensor": {
+            "due": {
+                "name": "Due"
+            }
+        },
+        "calendar": {
+            "calendar": {
+                "name": "Calendar"
+            }
+        }
     }
 }
