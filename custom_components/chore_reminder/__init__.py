@@ -16,7 +16,7 @@ from homeassistant.util import dt as dt_util
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.helpers.entity import DeviceInfo
 
-PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.BINARY_SENSOR, Platform.BUTTON]
+PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.BINARY_SENSOR, Platform.BUTTON, Platform.CALENDAR]
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Chore Reminder from a config entry."""
@@ -81,7 +81,8 @@ class ChoreEntity:
     @property
     def days_remaining(self):
         next_due = self._last_completed + timedelta(days=self.frequency)
-        diff = next_due - dt_util.now()
+        # Comparer les dates (sans heure) pour un nombre de jours précis
+        diff = next_due.date() - dt_util.now().date()
         return diff.days
 
     @property

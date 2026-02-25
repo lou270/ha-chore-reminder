@@ -22,11 +22,12 @@ class ChoreCompleteButton(ButtonEntity):
     """Representation of a button to complete the chore."""
 
     _attr_icon = "mdi:checkbox-marked-circle-outline"
+    _attr_has_entity_name = True
 
     def __init__(self, chore_entity: ChoreEntity) -> None:
         """Initialize the button."""
         self._chore = chore_entity
-        self._attr_name = f"{chore_entity.name} Fait"
+        self._attr_name = "Terminer"
         self._attr_unique_id = f"{chore_entity.entry.entry_id}_complete_button"
         self._attr_device_info = chore_entity.device_info
         if chore_entity.image:

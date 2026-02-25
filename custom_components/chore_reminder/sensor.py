@@ -27,11 +27,12 @@ class ChoreDaysRemainingSensor(SensorEntity):
 
     _attr_icon = "mdi:calendar-clock"
     _attr_native_unit_of_measurement = "jours"
+    _attr_has_entity_name = True
 
     def __init__(self, chore_entity: ChoreEntity) -> None:
         """Initialize the sensor."""
         self._chore = chore_entity
-        self._attr_name = f"{chore_entity.name} Jours Restants"
+        self._attr_name = "Jours restants"
         self._attr_unique_id = f"{chore_entity.entry.entry_id}_days_remaining"
         self._attr_device_info = chore_entity.device_info
         if chore_entity.image:

@@ -16,7 +16,7 @@ _LOGGER = logging.getLogger(__name__)
 
 CHORE_SCHEMA = vol.Schema({
     vol.Required(CONF_NAME): str,
-    vol.Required(CONF_FREQUENCY, default=DEFAULT_FREQUENCY): int,
+    vol.Required(CONF_FREQUENCY, default=DEFAULT_FREQUENCY): vol.All(int, vol.Range(min=1)),
     vol.Optional(CONF_ICON): str,
     vol.Optional(CONF_IMAGE): str,
 })

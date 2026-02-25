@@ -26,11 +26,12 @@ class ChoreDueSensor(BinarySensorEntity):
     """Representation of a binary sensor that reports if chore is due."""
 
     _attr_device_class = BinarySensorDeviceClass.PROBLEM
+    _attr_has_entity_name = True
 
     def __init__(self, chore_entity: ChoreEntity) -> None:
         """Initialize the binary sensor."""
         self._chore = chore_entity
-        self._attr_name = f"{chore_entity.name} À faire"
+        self._attr_name = "À faire"
         self._attr_unique_id = f"{chore_entity.entry.entry_id}_due"
         self._attr_device_info = chore_entity.device_info
         if chore_entity.image:
