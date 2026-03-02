@@ -26,13 +26,15 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     """Set up the Chore Reminder component."""
     card_path = Path(__file__).parent / CARD_JS
     from homeassistant.components.http import StaticPathConfig
+    from homeassistant.components.frontend import add_extra_js_url
     try:
         await hass.http.async_register_static_paths(
             [StaticPathConfig(CARD_URL, str(card_path), cache_headers=False)]
         )
-        _LOGGER.info("Chore Reminder card registered at %s", CARD_URL)
     except RuntimeError:
-        _LOGGER.debug("Chore Reminder card route already registered")
+        pass  # Route already registered
+    add_extra_js_url(hass, CARD_URL)
+    _LOGGER.info("Chore Reminder card registered at %s", CARD_URL)
     return True
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
