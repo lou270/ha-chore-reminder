@@ -30,9 +30,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if "frontend_registered" not in hass.data[DOMAIN]:
         card_path = Path(__file__).parent / CARD_JS
         from homeassistant.components.http import StaticPathConfig
-        await hass.http.async_register_static_paths(
-            [StaticPathConfig(CARD_URL, str(card_path), cache_headers=False)]
-        )
+        try:
+            await hass.http.async_register_static_paths(
+                [StaticPathConfig(CARD_URL, str(card_path), cache_headers=False)]
+            )
+        except RuntimeError:
+            pass  # Route already registered
         hass.data[DOMAIN]["frontend_registered"] = True
         _LOGGER.info("Chore Reminder card registered at %s", CARD_URL)
 
