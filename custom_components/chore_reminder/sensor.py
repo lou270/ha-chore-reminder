@@ -25,7 +25,6 @@ async def async_setup_entry(
 class ChoreDaysRemainingSensor(RestoreSensor):
     """Representation of a sensor that reports days remaining."""
 
-    _attr_icon = "mdi:calendar-clock"
     _attr_native_unit_of_measurement = "jours"
     _attr_has_entity_name = True
     _attr_translation_key = "days_remaining"
@@ -35,6 +34,7 @@ class ChoreDaysRemainingSensor(RestoreSensor):
         self._chore = chore_entity
         self._attr_unique_id = f"{chore_entity.entry.entry_id}_days_remaining"
         self._attr_device_info = chore_entity.device_info
+        self._attr_icon = chore_entity.icon
         if chore_entity.image:
             self._attr_entity_picture = chore_entity.image
 

@@ -21,7 +21,6 @@ async def async_setup_entry(
 class ChoreCompleteButton(ButtonEntity):
     """Representation of a button to complete the chore."""
 
-    _attr_icon = "mdi:checkbox-marked-circle-outline"
     _attr_has_entity_name = True
     _attr_translation_key = "complete_button"
 
@@ -30,6 +29,7 @@ class ChoreCompleteButton(ButtonEntity):
         self._chore = chore_entity
         self._attr_unique_id = f"{chore_entity.entry.entry_id}_complete_button"
         self._attr_device_info = chore_entity.device_info
+        self._attr_icon = chore_entity.icon
         if chore_entity.image:
             self._attr_entity_picture = chore_entity.image
 
