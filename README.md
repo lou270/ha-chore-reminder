@@ -87,20 +87,16 @@ entities:
 initial_view: dayGridMonth
 ```
 
-### 3. Prochaines tâches (Dynamique)
-Utilisez la carte personnalisée `auto-entities` (disponible sur HACS) pour afficher **automatiquement** toutes vos corvées triées par urgence. Les nouvelles tâches ajoutées apparaîtront sans modification de la carte.
+### 3. Carte Chore Reminder (Recommandée)
+L'intégration inclut sa propre carte Lovelace ! Elle affiche **automatiquement** toutes vos corvées triées par urgence avec un code couleur (🔴 en retard, 🟠 urgent, 🟢 OK) et un bouton de validation intégré.
 
+**Installation de la ressource (une seule fois) :**
+1. Allez dans **Paramètres** > **Tableaux de bord** > **⋮** (menu 3 points en haut à droite) > **Ressources**
+2. Ajoutez `/chore_reminder/chore-reminder-card.js` avec le type **Module JavaScript**
+
+**Utilisation :**
 ```yaml
-type: custom:auto-entities
-card:
-  type: entities
-  title: 📋 Prochaines Tâches
-  show_header_toggle: false
-filter:
-  include:
-    - integration: chore_reminder
-      domain: sensor
-sort:
-  method: state
-  numeric: true
+type: custom:chore-reminder-card
+title: 📋 Mes Corvées
+max_items: 10
 ```
