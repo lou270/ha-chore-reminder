@@ -86,3 +86,21 @@ entities:
   - calendar.une_autre_corvee_calendrier
 initial_view: dayGridMonth
 ```
+
+### 3. Prochaines tâches (Dynamique)
+Utilisez la carte personnalisée `auto-entities` (disponible sur HACS) pour afficher **automatiquement** toutes vos corvées triées par urgence. Les nouvelles tâches ajoutées apparaîtront sans modification de la carte.
+
+```yaml
+type: custom:auto-entities
+card:
+  type: entities
+  title: 📋 Prochaines Tâches
+  show_header_toggle: false
+filter:
+  include:
+    - integration: chore_reminder
+      domain: sensor
+sort:
+  method: state
+  numeric: true
+```

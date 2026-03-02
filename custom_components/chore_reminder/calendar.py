@@ -57,6 +57,11 @@ class ChoreCalendar(CalendarEntity):
         start_date_local = dt_util.as_local(start_date).date()
         end_date_local = dt_util.as_local(end_date).date()
 
+        # Limiter à 1 an maximum depuis aujourd'hui
+        max_date = dt_util.now().date() + timedelta(days=365)
+        if end_date_local > max_date:
+            end_date_local = max_date
+
         next_due = self.chore.last_completed + timedelta(days=self.chore.frequency)
         current_date = dt_util.as_local(next_due).date()
 
