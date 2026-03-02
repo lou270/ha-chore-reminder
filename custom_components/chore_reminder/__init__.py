@@ -22,22 +22,22 @@ PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.BINARY_SENSOR, Platform.B
 CARD_JS = "chore-reminder-card.js"
 CARD_URL = f"/{DOMAIN}/{CARD_JS}"
 
+async def async_setup(hass: HomeAssistant, config: dict) -> bool:
+    """Set up the Chore Reminder component."""
+    card_path = Path(__file__).parent / CARD_JS
+    from homeassistant.components.http import StaticPathConfig
+    try:
+        await hass.http.async_register_static_paths(
+            [StaticPathConfig(CARD_URL, str(card_path), cache_headers=False)]
+        )
+        _LOGGER.info("Chore Reminder card registered at %s", CARD_URL)
+    except RuntimeError:
+        _LOGGER.debug("Chore Reminder card route already registered")
+    return True
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Chore Reminder from a config entry."""
     hass.data.setdefault(DOMAIN, {})
-
-    # Register the Lovelace card (only once)
-    if "frontend_registered" not in hass.data[DOMAIN]:
-        card_path = Path(__file__).parent / CARD_JS
-        from homeassistant.components.http import StaticPathConfig
-        try:
-            await hass.http.async_register_static_paths(
-                [StaticPathConfig(CARD_URL, str(card_path), cache_headers=False)]
-            )
-        except RuntimeError:
-            pass  # Route already registered
-        hass.data[DOMAIN]["frontend_registered"] = True
-        _LOGGER.info("Chore Reminder card registered at %s", CARD_URL)
 
     # Create the ChoreEntity instance
     chore_entity = ChoreEntity(hass, entry)
