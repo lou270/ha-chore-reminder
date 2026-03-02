@@ -274,7 +274,7 @@ class ChoreReminderCard extends HTMLElement {
                 </div>
                 <div class="chore-info">
                   <div class="chore-name">${chore.name}</div>
-                  <div class="chore-due">${this._getStatusLabel(chore.daysRemaining)}</div>
+                  <div class="chore-due">${chore.nextDue ? new Date(chore.nextDue).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }) : ""}</div>
                 </div>
                 <div class="chore-badge" style="background-color: ${this._getStatusColor(chore.daysRemaining)};">
                   ${chore.daysRemaining <= 0 ? "!" : chore.daysRemaining + "j"}
