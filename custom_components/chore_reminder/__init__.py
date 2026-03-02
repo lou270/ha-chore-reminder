@@ -29,7 +29,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Register the Lovelace card (only once)
     if "frontend_registered" not in hass.data[DOMAIN]:
         card_path = Path(__file__).parent / CARD_JS
-        hass.http.register_static_path(CARD_URL, str(card_path), cache_headers=False)
+        from homeassistant.components.http import StaticPathConfig
+        await hass.http.async_register_static_paths(
+            [StaticPathConfig(CARD_URL, str(card_path), cache_headers=False)]
+        )
         hass.data[DOMAIN]["frontend_registered"] = True
         _LOGGER.info("Chore Reminder card registered at %s", CARD_URL)
 
