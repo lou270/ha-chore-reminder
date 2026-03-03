@@ -50,9 +50,22 @@ class ChoreReminderCard extends HTMLElement {
 
       // Get device name (chore name without "Jours restants" suffix)
       let name = state.attributes.friendly_name || sensorId;
-      if (this._hass.devices && deviceId && this._hass.devices[deviceId]) {
-        name = this._hass.devices[deviceId].name || name;
+
+      // 1. Check if user renamed the entity directly
+      if (this._hass.entities && this._hass.entities[sensorId]) {
+        const entity = this._hass.entities[sensorId];
+        if (entity.name) name = entity.name;
       }
+
+      // 2. Check if user renamed the device (the integration)
+      if (this._hass.devices && deviceId && this._hass.devices[deviceId]) {
+        const device = this._hass.devices[deviceId];
+        if (device.name_by_user) name = device.name_by_user;
+        else if (device.name && (!this._hass.entities || !this._hass.entities[sensorId] || !this._hass.entities[sensorId].name)) name = device.name;
+      }
+
+      // 3. Clean up the suffix in case it's still present in the string
+      name = name.replace(/(?:\s|-)?(Jours restants|Days remaining)$/i, "").trim();
 
       // Get entity picture or icon from the button entity (which has the chore's configured icon)
       const entityPicture = state.attributes.entity_picture || null;
