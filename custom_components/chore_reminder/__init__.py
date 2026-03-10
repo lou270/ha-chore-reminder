@@ -10,6 +10,7 @@ from homeassistant.core import HomeAssistant
 
 from .const import DOMAIN
 from .store import ChoreStore
+from .notify import setup_notifications
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -47,6 +48,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # Forward setup to platforms
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
+    # Register daily notifications
+    setup_notifications(hass, entry)
 
     # Reload on options change
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))

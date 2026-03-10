@@ -19,6 +19,7 @@ from homeassistant.util import dt as dt_util
 from .const import (
     DOMAIN,
     CONF_CHORE_ID,
+    CONF_CATEGORY,
     CONF_LAST_COMPLETED,
     CONF_NAME,
     CONF_ICON,
@@ -86,21 +87,27 @@ class ChoreTodoListEntity(TodoListEntity):
             due_date = next_due_dt.date() if next_due_dt else now.date()
             days = self._store.days_remaining(chore_id)
 
-            # Overdue or due today = NEEDS_ACTION but with urgency in description suffix
             status = TodoItemStatus.NEEDS_ACTION
 
-            description = chore.get(CONF_NOTES, "") or ""
-            if days <= 0:
-                suffix = f"⚠️ En retard de {abs(days)}j" if days < 0 else "📅 Aujourd'hui"
+            notes = chore.get(CONF_NOTES, "") or ""
+            category = chore.get(CONF_CATEGORY, "") or ""
+
+            if days < 0:
+                suffix = f"⚠️ En retard de {abs(days)}j"
+            elif days == 0:
+                suffix = "📅 Aujourd'hui"
             elif days == 1:
                 suffix = "📅 Demain"
             else:
                 suffix = f"📅 Dans {days}j"
 
-            if description:
-                description = f"{suffix} · {description}"
-            else:
-                description = suffix
+            parts = [suffix]
+            if category:
+                parts.append(f"🏷️ {category}")
+            if notes:
+                parts.append(notes)
+
+            description = " · ".join(parts)
 
             items.append(
                 TodoItem(
@@ -112,6 +119,7 @@ class ChoreTodoListEntity(TodoListEntity):
                 )
             )
         return items
+
 
     async def async_create_todo_item(self, item: TodoItem) -> None:
         """Create a new chore from the todo UI."""

@@ -24,9 +24,19 @@
                 "title": "Ajouter une tâche",
                 "data": {
                     "name": "Nom de la tâche",
-                    "frequency": "Fréquence (jours)",
+                    "category": "Catégorie (optionnel, ex: cuisine, jardin)",
+                    "schedule_type": "Type de planification",
+                    "frequency": "Fréquence (jours, si type = interval)",
+                    "schedule_days": "Jours (0=Lun…6=Dim, si hebdo, ou jour du mois si mensuel)",
+                    "adaptive": "Fréquence adaptive (apprend de l'historique)",
                     "icon": "Icône (ex: mdi:broom)",
-                    "notes": "Notes (optionnel)"
+                    "notes": "Notes (optionnel)",
+                    "notify_when_due": "Notifications activées",
+                    "notify_advance_days": "Jours d'avance pour la notification"
+                },
+                "data_description": {
+                    "schedule_type": "interval = tous les N jours · weekly = certains jours de la semaine · monthly = jour fixe du mois",
+                    "schedule_days": "Ex pour hebdo: [0, 3] = lundi + jeudi | Ex mensuel: [1] = le 1er"
                 }
             },
             "edit_chore": {
@@ -39,9 +49,15 @@
                 "title": "Modifier la tâche",
                 "data": {
                     "name": "Nom de la tâche",
+                    "category": "Catégorie",
+                    "schedule_type": "Type de planification",
                     "frequency": "Fréquence (jours)",
-                    "icon": "Icône (ex: mdi:broom)",
-                    "notes": "Notes (optionnel)"
+                    "schedule_days": "Jours (liste de nombres)",
+                    "adaptive": "Fréquence adaptive",
+                    "icon": "Icône",
+                    "notes": "Notes",
+                    "notify_when_due": "Notifications activées",
+                    "notify_advance_days": "Jours d'avance"
                 }
             },
             "delete_chore": {
@@ -65,6 +81,9 @@
         "sensor": {
             "next_chore": {
                 "name": "Prochaine tâche"
+            },
+            "overdue_count": {
+                "name": "Tâches en retard"
             }
         },
         "calendar": {

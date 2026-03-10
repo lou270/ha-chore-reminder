@@ -12,16 +12,60 @@ from homeassistant.data_entry_flow import FlowResult
 from .const import (
     DOMAIN,
     CONF_NAME,
+    CONF_CATEGORY,
     CONF_FREQUENCY,
     CONF_ICON,
     CONF_NOTES,
     CONF_CHORE_ID,
+    CONF_SCHEDULE_TYPE,
+    CONF_SCHEDULE_DAYS,
+    CONF_ADAPTIVE,
+    CONF_NOTIFY_WHEN_DUE,
+    CONF_NOTIFY_ADVANCE_DAYS,
     DEFAULT_FREQUENCY,
     DEFAULT_ICON,
+    DEFAULT_SCHEDULE_TYPE,
+    DEFAULT_NOTIFY_ADVANCE_DAYS,
+    SCHEDULE_TYPE_INTERVAL,
+    SCHEDULE_TYPE_WEEKLY,
+    SCHEDULE_TYPE_MONTHLY,
 )
 from .store import ChoreStore
 
 _LOGGER = logging.getLogger(__name__)
+
+WEEKDAYS = {
+    "0": "Lundi",
+    "1": "Mardi",
+    "2": "Mercredi",
+    "3": "Jeudi",
+    "4": "Vendredi",
+    "5": "Samedi",
+    "6": "Dimanche",
+}
+
+def _chore_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
+    """Build the chore add/edit schema with optional defaults."""
+    d = defaults or {}
+    schedule_type = d.get(CONF_SCHEDULE_TYPE, DEFAULT_SCHEDULE_TYPE)
+    return vol.Schema({
+        vol.Required(CONF_NAME, default=d.get(CONF_NAME, "")): str,
+        vol.Optional(CONF_CATEGORY, default=d.get(CONF_CATEGORY, "")): str,
+        vol.Required(CONF_SCHEDULE_TYPE, default=schedule_type): vol.In([
+            SCHEDULE_TYPE_INTERVAL,
+            SCHEDULE_TYPE_WEEKLY,
+            SCHEDULE_TYPE_MONTHLY,
+        ]),
+        vol.Optional(CONF_FREQUENCY, default=d.get(CONF_FREQUENCY, DEFAULT_FREQUENCY)): vol.All(int, vol.Range(min=1)),
+        vol.Optional(CONF_SCHEDULE_DAYS, default=d.get(CONF_SCHEDULE_DAYS, [])): vol.All(
+            list, [vol.All(int, vol.Range(min=0, max=31))]
+        ),
+        vol.Optional(CONF_ADAPTIVE, default=d.get(CONF_ADAPTIVE, False)): bool,
+        vol.Optional(CONF_ICON, default=d.get(CONF_ICON, DEFAULT_ICON)): str,
+        vol.Optional(CONF_NOTES, default=d.get(CONF_NOTES, "")): str,
+        vol.Optional(CONF_NOTIFY_WHEN_DUE, default=d.get(CONF_NOTIFY_WHEN_DUE, False)): bool,
+        vol.Optional(CONF_NOTIFY_ADVANCE_DAYS, default=d.get(CONF_NOTIFY_ADVANCE_DAYS, DEFAULT_NOTIFY_ADVANCE_DAYS)): vol.All(int, vol.Range(min=0, max=30)),
+    })
 
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -79,21 +123,28 @@ class ChoreOptionsFlow(config_entries.OptionsFlow):
         """Add a new chore."""
         if user_input is not None:
             store = self._get_store()
+            schedule_days = user_input.get(CONF_SCHEDULE_DAYS, [])
+            if isinstance(schedule_days, str):
+                schedule_days = [int(d.strip()) for d in schedule_days.split(",") if d.strip().isdigit()]
+
             await store.async_add_chore(
                 name=user_input[CONF_NAME],
+                category=user_input.get(CONF_CATEGORY, ""),
                 frequency=user_input.get(CONF_FREQUENCY, DEFAULT_FREQUENCY),
                 icon=user_input.get(CONF_ICON, DEFAULT_ICON) or DEFAULT_ICON,
                 notes=user_input.get(CONF_NOTES, ""),
+                schedule_type=user_input.get(CONF_SCHEDULE_TYPE, DEFAULT_SCHEDULE_TYPE),
+                schedule_days=schedule_days,
+                adaptive=user_input.get(CONF_ADAPTIVE, False),
+                notify_when_due=user_input.get(CONF_NOTIFY_WHEN_DUE, False),
+                notify_advance_days=user_input.get(CONF_NOTIFY_ADVANCE_DAYS, DEFAULT_NOTIFY_ADVANCE_DAYS),
             )
             return self.async_create_entry(title="", data={})
 
-        schema = vol.Schema({
-            vol.Required(CONF_NAME): str,
-            vol.Required(CONF_FREQUENCY, default=DEFAULT_FREQUENCY): vol.All(int, vol.Range(min=1)),
-            vol.Optional(CONF_ICON, default=DEFAULT_ICON): str,
-            vol.Optional(CONF_NOTES, default=""): str,
-        })
-        return self.async_show_form(step_id="add_chore", data_schema=schema)
+        return self.async_show_form(
+            step_id="add_chore",
+            data_schema=_chore_schema(),
+        )
 
     # ── Edit ──────────────────────────────────────────────────────────────────
 
@@ -125,24 +176,31 @@ class ChoreOptionsFlow(config_entries.OptionsFlow):
             return self.async_abort(reason="chore_not_found")
 
         if user_input is not None:
+            schedule_days = user_input.get(CONF_SCHEDULE_DAYS, [])
+            if isinstance(schedule_days, str):
+                schedule_days = [int(d.strip()) for d in schedule_days.split(",") if d.strip().isdigit()]
+
             await store.async_update_chore(
                 self._selected_chore_id,
                 **{
                     CONF_NAME: user_input[CONF_NAME],
-                    CONF_FREQUENCY: user_input[CONF_FREQUENCY],
+                    CONF_CATEGORY: user_input.get(CONF_CATEGORY, ""),
+                    CONF_FREQUENCY: user_input.get(CONF_FREQUENCY, DEFAULT_FREQUENCY),
                     CONF_ICON: user_input.get(CONF_ICON, DEFAULT_ICON) or DEFAULT_ICON,
                     CONF_NOTES: user_input.get(CONF_NOTES, ""),
+                    CONF_SCHEDULE_TYPE: user_input.get(CONF_SCHEDULE_TYPE, DEFAULT_SCHEDULE_TYPE),
+                    CONF_SCHEDULE_DAYS: schedule_days,
+                    CONF_ADAPTIVE: user_input.get(CONF_ADAPTIVE, False),
+                    CONF_NOTIFY_WHEN_DUE: user_input.get(CONF_NOTIFY_WHEN_DUE, False),
+                    CONF_NOTIFY_ADVANCE_DAYS: user_input.get(CONF_NOTIFY_ADVANCE_DAYS, DEFAULT_NOTIFY_ADVANCE_DAYS),
                 }
             )
             return self.async_create_entry(title="", data={})
 
-        schema = vol.Schema({
-            vol.Required(CONF_NAME, default=chore.get(CONF_NAME, "")): str,
-            vol.Required(CONF_FREQUENCY, default=chore.get(CONF_FREQUENCY, DEFAULT_FREQUENCY)): vol.All(int, vol.Range(min=1)),
-            vol.Optional(CONF_ICON, default=chore.get(CONF_ICON, DEFAULT_ICON)): str,
-            vol.Optional(CONF_NOTES, default=chore.get(CONF_NOTES, "")): str,
-        })
-        return self.async_show_form(step_id="edit_chore_details", data_schema=schema)
+        return self.async_show_form(
+            step_id="edit_chore_details",
+            data_schema=_chore_schema(chore),
+        )
 
     # ── Delete ────────────────────────────────────────────────────────────────
 
