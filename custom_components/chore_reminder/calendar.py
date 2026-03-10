@@ -1,6 +1,9 @@
+"""Calendar platform for Chore Reminder - shows all upcoming chore events."""
 from __future__ import annotations
 
-from datetime import datetime, timedelta, date
+import logging
+from datetime import date, datetime, timedelta
+from typing import Any
 
 from homeassistant.components.calendar import CalendarEntity, CalendarEvent
 from homeassistant.config_entries import ConfigEntry
@@ -8,8 +11,10 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import dt as dt_util
 
-from .const import DOMAIN
-from . import ChoreEntity
+from .const import DOMAIN, CONF_NAME, CONF_CHORE_ID, CONF_ICON, CONF_NOTES, CONF_FREQUENCY
+from .store import ChoreStore
+
+_LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(
@@ -18,85 +23,87 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the calendar platform."""
-    chore: ChoreEntity = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities([ChoreCalendar(chore)])
+    store: ChoreStore = hass.data[DOMAIN][entry.entry_id]
+    async_add_entities([ChoreCalendarEntity(store, entry)])
 
 
-class ChoreCalendar(CalendarEntity):
-    """Calendar entity for a chore."""
+class ChoreCalendarEntity(CalendarEntity):
+    """Calendar entity showing all upcoming chore events."""
 
     _attr_has_entity_name = True
-    _attr_translation_key = "calendar"
+    _attr_translation_key = "chore_calendar"
+    _attr_icon = "mdi:calendar-check"
 
-    def __init__(self, chore: ChoreEntity) -> None:
-        """Initialize the calendar entity."""
-        self.chore = chore
-        self._attr_unique_id = f"{self.chore.entry.entry_id}_calendar"
-        self._attr_device_info = self.chore.device_info
+    def __init__(self, store: ChoreStore, entry: ConfigEntry) -> None:
+        """Initialize the calendar."""
+        self._store = store
+        self._attr_unique_id = f"{entry.entry_id}_calendar"
+
+    async def async_added_to_hass(self) -> None:
+        """Register listener."""
+        self._store.add_listener(self.async_write_ha_state)
+
+    async def async_will_remove_from_hass(self) -> None:
+        """Deregister listener."""
+        self._store.remove_listener(self.async_write_ha_state)
 
     @property
     def event(self) -> CalendarEvent | None:
-        """Return the next upcoming event."""
-        next_due = self.chore.last_completed + timedelta(days=self.chore.frequency)
-        # We need the local date 
-        start = dt_util.as_local(next_due).date()
-        end = start + timedelta(days=1)
-        
+        """Return the next upcoming event (most urgent chore)."""
+        chores = self._store.get_all_chores()
+        if not chores:
+            return None
+        next_chore = chores[0]
+        chore_id = next_chore[CONF_CHORE_ID]
+        next_due = self._store.next_due_date(chore_id)
+        if next_due is None:
+            return None
+        due_date = next_due.date()
         return CalendarEvent(
-            start=start,
-            end=end,
-            summary=self.chore.name,
+            start=due_date,
+            end=due_date + timedelta(days=1),
+            summary=next_chore.get(CONF_NAME, ""),
+            description=next_chore.get(CONF_NOTES, ""),
         )
 
     async def async_get_events(
-        self, hass: HomeAssistant, start_date: datetime, end_date: datetime
+        self,
+        hass: HomeAssistant,
+        start_date: datetime,
+        end_date: datetime,
     ) -> list[CalendarEvent]:
-        """Return calendar events occurring within a specified time window."""
-        events = []
-        
-        start_date_local = dt_util.as_local(start_date).date()
-        end_date_local = dt_util.as_local(end_date).date()
+        """Return all chore events in the requested range."""
+        events: list[CalendarEvent] = []
+        chores = self._store.get_all_chores()
 
-        # Limiter à 1 an maximum depuis aujourd'hui
-        max_date = dt_util.now().date() + timedelta(days=365)
-        if end_date_local > max_date:
-            end_date_local = max_date
+        for chore in chores:
+            chore_id = chore[CONF_CHORE_ID]
+            frequency = chore.get(CONF_FREQUENCY, 7)
+            name = chore.get(CONF_NAME, "")
+            notes = chore.get(CONF_NOTES, "")
 
-        next_due = self.chore.last_completed + timedelta(days=self.chore.frequency)
-        current_date = dt_util.as_local(next_due).date()
+            # Generate recurring events up to 1 year from start_date
+            next_due = self._store.next_due_date(chore_id)
+            if next_due is None:
+                continue
 
-        # Fast forward if current_date is far in the past compared to start_date_local
-        if current_date < start_date_local:
-            days_diff = (start_date_local - current_date).days
-            periods = days_diff // self.chore.frequency
-            if periods > 0:
-                current_date += timedelta(days=self.chore.frequency * periods)
-        
-        # Protect against infinite loop
-        max_events = 365 # 1 year max theoretically
-        generated = 0
-        
-        while current_date <= end_date_local and generated < max_events:
-            event_end = current_date + timedelta(days=1)
-            
-            # Check if this occurrence falls within the requested range
-            if (current_date >= start_date_local and current_date < end_date_local) or \
-               (event_end > start_date_local and current_date <= end_date_local):
+            event_date = next_due.date()
+            limit = start_date.date() + timedelta(days=365)
+            end_limit = min(end_date.date(), limit)
+
+            # Advance to start_date window
+            while event_date < start_date.date():
+                event_date += timedelta(days=frequency)
+
+            while event_date <= end_limit:
                 events.append(
                     CalendarEvent(
-                        start=current_date,
-                        end=event_end,
-                        summary=self.chore.name,
+                        start=event_date,
+                        end=event_date + timedelta(days=1),
+                        summary=name,
+                        description=notes,
                     )
                 )
-                
-            # Move to the next frequency period assuming it's completed exactly on the due date
-            current_date += timedelta(days=self.chore.frequency)
-            generated += 1
+                event_date += timedelta(days=frequency)
 
         return events
-
-    async def async_added_to_hass(self) -> None:
-        """Run when entity about to be added to hass."""
-        self.chore.add_listener(self.async_write_ha_state)
-

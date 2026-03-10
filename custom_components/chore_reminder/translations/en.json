@@ -2,41 +2,73 @@
     "config": {
         "step": {
             "user": {
-                "title": "Add a Chore",
-                "description": "Configure your household chore",
+                "title": "Chore Reminder",
+                "description": "Click Submit to install the integration. You can then add chores via the options."
+            }
+        },
+        "abort": {
+            "single_instance_allowed": "This integration can only be configured once."
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Manage chores",
+                "menu_options": {
+                    "add_chore": "➕ Add a chore",
+                    "edit_chore": "✏️ Edit a chore",
+                    "delete_chore": "🗑️ Delete a chore"
+                }
+            },
+            "add_chore": {
+                "title": "Add a chore",
                 "data": {
-                    "name": "Chore Name",
+                    "name": "Chore name",
                     "frequency": "Frequency (days)",
-                    "icon": "Icon (optional, e.g. mdi:broom)",
-                    "image": "Image URL (optional, http://...)"
+                    "icon": "Icon (e.g. mdi:broom)",
+                    "notes": "Notes (optional)"
+                }
+            },
+            "edit_chore": {
+                "title": "Select chore to edit",
+                "data": {
+                    "id": "Chore"
+                }
+            },
+            "edit_chore_details": {
+                "title": "Edit chore",
+                "data": {
+                    "name": "Chore name",
+                    "frequency": "Frequency (days)",
+                    "icon": "Icon (e.g. mdi:broom)",
+                    "notes": "Notes (optional)"
+                }
+            },
+            "delete_chore": {
+                "title": "Delete a chore",
+                "data": {
+                    "id": "Chore to delete"
                 }
             }
         },
-        "error": {
-            "auth": "Authentication error"
-        },
         "abort": {
-            "already_configured": "This chore is already configured"
+            "no_chores": "No chores configured.",
+            "chore_not_found": "Chore not found."
         }
     },
     "entity": {
-        "button": {
-            "complete_button": {
-                "name": "Complete"
+        "todo": {
+            "chore_list": {
+                "name": "Chores"
             }
         },
         "sensor": {
-            "days_remaining": {
-                "name": "Days remaining"
-            }
-        },
-        "binary_sensor": {
-            "due": {
-                "name": "Due"
+            "next_chore": {
+                "name": "Next chore"
             }
         },
         "calendar": {
-            "calendar": {
+            "chore_calendar": {
                 "name": "Calendar"
             }
         }

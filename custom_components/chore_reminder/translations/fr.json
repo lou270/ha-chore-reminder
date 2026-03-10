@@ -2,41 +2,73 @@
     "config": {
         "step": {
             "user": {
+                "title": "Chore Reminder",
+                "description": "Cliquez sur Soumettre pour installer l'intégration. Vous pourrez ensuite ajouter des tâches via les options."
+            }
+        },
+        "abort": {
+            "single_instance_allowed": "Cette intégration ne peut être configurée qu'une seule fois."
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Gérer les tâches",
+                "menu_options": {
+                    "add_chore": "➕ Ajouter une tâche",
+                    "edit_chore": "✏️ Modifier une tâche",
+                    "delete_chore": "🗑️ Supprimer une tâche"
+                }
+            },
+            "add_chore": {
                 "title": "Ajouter une tâche",
-                "description": "Configurez votre tâche ménagère",
                 "data": {
                     "name": "Nom de la tâche",
                     "frequency": "Fréquence (jours)",
-                    "icon": "Icône (optionnel, ex: mdi:broom)",
-                    "image": "URL de l'image (optionnel, http://...)"
+                    "icon": "Icône (ex: mdi:broom)",
+                    "notes": "Notes (optionnel)"
+                }
+            },
+            "edit_chore": {
+                "title": "Sélectionner une tâche à modifier",
+                "data": {
+                    "id": "Tâche"
+                }
+            },
+            "edit_chore_details": {
+                "title": "Modifier la tâche",
+                "data": {
+                    "name": "Nom de la tâche",
+                    "frequency": "Fréquence (jours)",
+                    "icon": "Icône (ex: mdi:broom)",
+                    "notes": "Notes (optionnel)"
+                }
+            },
+            "delete_chore": {
+                "title": "Supprimer une tâche",
+                "data": {
+                    "id": "Tâche à supprimer"
                 }
             }
         },
-        "error": {
-            "auth": "Erreur d'authentification"
-        },
         "abort": {
-            "already_configured": "Cette tâche est déjà configurée"
+            "no_chores": "Aucune tâche configurée.",
+            "chore_not_found": "Tâche introuvable."
         }
     },
     "entity": {
-        "button": {
-            "complete_button": {
-                "name": "Terminer"
+        "todo": {
+            "chore_list": {
+                "name": "Tâches ménagères"
             }
         },
         "sensor": {
-            "days_remaining": {
-                "name": "Jours restants"
-            }
-        },
-        "binary_sensor": {
-            "due": {
-                "name": "À faire"
+            "next_chore": {
+                "name": "Prochaine tâche"
             }
         },
         "calendar": {
-            "calendar": {
+            "chore_calendar": {
                 "name": "Calendrier"
             }
         }
