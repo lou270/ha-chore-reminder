@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from typing import Any
 
 from homeassistant.components.todo import (
@@ -19,6 +19,7 @@ from homeassistant.util import dt as dt_util
 from .const import (
     DOMAIN,
     CONF_CHORE_ID,
+    CONF_LAST_COMPLETED,
     CONF_NAME,
     CONF_ICON,
     CONF_NOTES,
@@ -114,37 +115,65 @@ class ChoreTodoListEntity(TodoListEntity):
 
     async def async_create_todo_item(self, item: TodoItem) -> None:
         """Create a new chore from the todo UI."""
-        await self._store.async_add_chore(
+
+        # If user provided a due date, back-calculate last_completed
+        last_completed_iso: str | None = None
+        if item.due:
+            due_as_date = item.due if isinstance(item.due, date) else item.due.date()
+            last_completed_dt = due_as_date - timedelta(days=DEFAULT_FREQUENCY)
+            last_completed_iso = dt_util.start_of_local_day(
+                datetime(last_completed_dt.year, last_completed_dt.month, last_completed_dt.day)
+            ).isoformat()
+
+        chore = await self._store.async_add_chore(
             name=item.summary or "",
             notes=item.description or "",
         )
+        if last_completed_iso:
+            await self._store.async_update_chore(
+                chore[CONF_CHORE_ID],
+                **{CONF_LAST_COMPLETED: last_completed_iso}
+            )
 
     async def async_update_todo_item(self, item: TodoItem) -> None:
-        """Handle completing, editing name or description from the todo UI."""
+        """Handle completing, editing name, description or due date from the todo UI."""
+
         chore_id = item.uid
 
         if item.status == TodoItemStatus.COMPLETED:
             # Mark as completed → reset last_completed to now
             await self._store.async_complete_chore(chore_id)
-        else:
-            # Update name/description if changed
-            update: dict[str, Any] = {}
-            if item.summary is not None:
-                update[CONF_NAME] = item.summary
-            if item.description is not None:
-                # Strip the status suffix we injected
-                desc = item.description
-                for prefix in ("⚠️", "📅"):
-                    if desc.startswith(prefix):
-                        # Remove the injected suffix
-                        if " · " in desc:
-                            desc = desc.split(" · ", 1)[1]
-                        else:
-                            desc = ""
-                        break
-                update[CONF_NOTES] = desc
-            if update:
-                await self._store.async_update_chore(chore_id, **update)
+            return
+
+        update: dict[str, Any] = {}
+
+        # Handle name change
+        if item.summary is not None:
+            update[CONF_NAME] = item.summary
+
+        # Handle description change (strip injected status prefix)
+        if item.description is not None:
+            desc = item.description
+            for prefix in ("⚠️", "📅"):
+                if desc.startswith(prefix):
+                    desc = desc.split(" · ", 1)[1] if " · " in desc else ""
+                    break
+            update[CONF_NOTES] = desc
+
+        # Handle due date change → recalculate last_completed
+        if item.due is not None:
+            chore = self._store.get_chore(chore_id)
+            if chore:
+                frequency = chore.get(CONF_FREQUENCY, DEFAULT_FREQUENCY)
+                due_as_date = item.due if isinstance(item.due, date) else item.due.date()
+                new_last_completed = due_as_date - timedelta(days=frequency)
+                new_lc_dt = dt_util.start_of_local_day(
+                    datetime(new_last_completed.year, new_last_completed.month, new_last_completed.day)
+                )
+                update[CONF_LAST_COMPLETED] = new_lc_dt.isoformat()
+
+        if update:
+            await self._store.async_update_chore(chore_id, **update)
 
     async def async_delete_todo_items(self, uids: list[str]) -> None:
         """Delete chores from the todo UI."""
