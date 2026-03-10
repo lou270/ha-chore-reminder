@@ -27,7 +27,7 @@ _LOGGER = logging.getLogger(__name__)
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Chore Reminder."""
 
-    VERSION = 2
+    VERSION = 1
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -39,7 +39,10 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             return self.async_create_entry(title="Chore Reminder", data={})
 
-        return self.async_show_form(step_id="user")
+        return self.async_show_form(
+            step_id="user",
+            data_schema=vol.Schema({}),
+        )
 
     @staticmethod
     def async_get_options_flow(
@@ -53,12 +56,11 @@ class ChoreOptionsFlow(config_entries.OptionsFlow):
     """Handle options: add / edit / delete chores."""
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
-        self.config_entry = config_entry
-        self._store: ChoreStore | None = None
+        self._config_entry = config_entry
         self._selected_chore_id: str | None = None
 
     def _get_store(self) -> ChoreStore:
-        return self.hass.data[DOMAIN][self.config_entry.entry_id]
+        return self.hass.data[DOMAIN][self._config_entry.entry_id]
 
     # ── Main menu ──────────────────────────────────────────────────────────────
 
