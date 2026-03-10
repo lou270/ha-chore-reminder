@@ -49,18 +49,16 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         config_entry: config_entries.ConfigEntry,
     ) -> config_entries.OptionsFlow:
         """Return the options flow handler."""
-        return ChoreOptionsFlow(config_entry)
+        return ChoreOptionsFlow()
 
 
 class ChoreOptionsFlow(config_entries.OptionsFlow):
     """Handle options: add / edit / delete chores."""
 
-    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
-        self._config_entry = config_entry
-        self._selected_chore_id: str | None = None
+    _selected_chore_id: str | None = None
 
     def _get_store(self) -> ChoreStore:
-        return self.hass.data[DOMAIN][self._config_entry.entry_id]
+        return self.hass.data[DOMAIN][self.config_entry.entry_id]
 
     # ── Main menu ──────────────────────────────────────────────────────────────
 
