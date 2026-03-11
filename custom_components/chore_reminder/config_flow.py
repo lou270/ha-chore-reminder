@@ -8,6 +8,7 @@ import voluptuous as vol
 
 from homeassistant import config_entries
 from homeassistant.data_entry_flow import FlowResult
+from homeassistant.helpers import selector
 
 from .const import (
     DOMAIN,
@@ -34,15 +35,6 @@ from .store import ChoreStore
 
 _LOGGER = logging.getLogger(__name__)
 
-WEEKDAYS = {
-    "0": "Lundi",
-    "1": "Mardi",
-    "2": "Mercredi",
-    "3": "Jeudi",
-    "4": "Vendredi",
-    "5": "Samedi",
-    "6": "Dimanche",
-}
 
 def _days_to_str(days: list[int]) -> str:
     """Convert a list of day numbers to a comma-separated string."""
@@ -60,28 +52,62 @@ def _str_to_days(s: str) -> list[int]:
 
 
 def _chore_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
-    """Build the chore add/edit schema with optional defaults."""
+    """Build the chore add/edit schema using HA selectors."""
     d = defaults or {}
-    schedule_type = d.get(CONF_SCHEDULE_TYPE, DEFAULT_SCHEDULE_TYPE)
-    # schedule_days is stored as list[int] but shown as a comma-separated string
     raw_days = d.get(CONF_SCHEDULE_DAYS, [])
     days_default = _days_to_str(raw_days) if isinstance(raw_days, list) else str(raw_days)
-    return vol.Schema({
-        vol.Required(CONF_NAME, default=d.get(CONF_NAME, "")): str,
-        vol.Optional(CONF_CATEGORY, default=d.get(CONF_CATEGORY, "")): str,
-        vol.Required(CONF_SCHEDULE_TYPE, default=schedule_type): vol.In([
-            SCHEDULE_TYPE_INTERVAL,
-            SCHEDULE_TYPE_WEEKLY,
-            SCHEDULE_TYPE_MONTHLY,
-        ]),
-        vol.Optional(CONF_FREQUENCY, default=d.get(CONF_FREQUENCY, DEFAULT_FREQUENCY)): vol.All(int, vol.Range(min=1)),
-        vol.Optional(CONF_SCHEDULE_DAYS, default=days_default): str,
-        vol.Optional(CONF_ADAPTIVE, default=d.get(CONF_ADAPTIVE, False)): bool,
-        vol.Optional(CONF_ICON, default=d.get(CONF_ICON, DEFAULT_ICON)): str,
-        vol.Optional(CONF_NOTES, default=d.get(CONF_NOTES, "")): str,
-        vol.Optional(CONF_NOTIFY_WHEN_DUE, default=d.get(CONF_NOTIFY_WHEN_DUE, False)): bool,
-        vol.Optional(CONF_NOTIFY_ADVANCE_DAYS, default=d.get(CONF_NOTIFY_ADVANCE_DAYS, DEFAULT_NOTIFY_ADVANCE_DAYS)): vol.All(int, vol.Range(min=0, max=30)),
-    }, extra=vol.REMOVE_EXTRA)
+
+    return vol.Schema(
+        {
+            vol.Required(CONF_NAME, default=d.get(CONF_NAME, "")): selector.TextSelector(
+                selector.TextSelectorConfig(type=selector.TextSelectorType.TEXT)
+            ),
+            vol.Optional(CONF_CATEGORY, default=d.get(CONF_CATEGORY, "")): selector.TextSelector(
+                selector.TextSelectorConfig(type=selector.TextSelectorType.TEXT)
+            ),
+            vol.Required(
+                CONF_SCHEDULE_TYPE,
+                default=d.get(CONF_SCHEDULE_TYPE, DEFAULT_SCHEDULE_TYPE),
+            ): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=[
+                        SCHEDULE_TYPE_INTERVAL,
+                        SCHEDULE_TYPE_WEEKLY,
+                        SCHEDULE_TYPE_MONTHLY,
+                    ],
+                    mode=selector.SelectSelectorMode.LIST,
+                )
+            ),
+            vol.Optional(
+                CONF_FREQUENCY,
+                default=d.get(CONF_FREQUENCY, DEFAULT_FREQUENCY),
+            ): selector.NumberSelector(
+                selector.NumberSelectorConfig(
+                    min=1, max=365, step=1, mode=selector.NumberSelectorMode.BOX
+                )
+            ),
+            vol.Optional(CONF_SCHEDULE_DAYS, default=days_default): selector.TextSelector(
+                selector.TextSelectorConfig(type=selector.TextSelectorType.TEXT)
+            ),
+            vol.Optional(CONF_ADAPTIVE, default=d.get(CONF_ADAPTIVE, False)): selector.BooleanSelector(),
+            vol.Optional(CONF_ICON, default=d.get(CONF_ICON, DEFAULT_ICON)): selector.IconSelector(),
+            vol.Optional(CONF_NOTES, default=d.get(CONF_NOTES, "")): selector.TextSelector(
+                selector.TextSelectorConfig(
+                    type=selector.TextSelectorType.TEXT, multiline=True
+                )
+            ),
+            vol.Optional(CONF_NOTIFY_WHEN_DUE, default=d.get(CONF_NOTIFY_WHEN_DUE, False)): selector.BooleanSelector(),
+            vol.Optional(
+                CONF_NOTIFY_ADVANCE_DAYS,
+                default=d.get(CONF_NOTIFY_ADVANCE_DAYS, DEFAULT_NOTIFY_ADVANCE_DAYS),
+            ): selector.NumberSelector(
+                selector.NumberSelectorConfig(
+                    min=0, max=30, step=1, mode=selector.NumberSelectorMode.BOX
+                )
+            ),
+        },
+        extra=vol.REMOVE_EXTRA,
+    )
 
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -144,7 +170,7 @@ class ChoreOptionsFlow(config_entries.OptionsFlow):
             await store.async_add_chore(
                 name=user_input[CONF_NAME],
                 category=user_input.get(CONF_CATEGORY, ""),
-                frequency=user_input.get(CONF_FREQUENCY, DEFAULT_FREQUENCY),
+                frequency=int(user_input.get(CONF_FREQUENCY, DEFAULT_FREQUENCY)),
                 icon=user_input.get(CONF_ICON, DEFAULT_ICON) or DEFAULT_ICON,
                 notes=user_input.get(CONF_NOTES, ""),
                 schedule_type=user_input.get(CONF_SCHEDULE_TYPE, DEFAULT_SCHEDULE_TYPE),
@@ -197,14 +223,14 @@ class ChoreOptionsFlow(config_entries.OptionsFlow):
                 **{
                     CONF_NAME: user_input[CONF_NAME],
                     CONF_CATEGORY: user_input.get(CONF_CATEGORY, ""),
-                    CONF_FREQUENCY: user_input.get(CONF_FREQUENCY, DEFAULT_FREQUENCY),
+                    CONF_FREQUENCY: int(user_input.get(CONF_FREQUENCY, DEFAULT_FREQUENCY)),
                     CONF_ICON: user_input.get(CONF_ICON, DEFAULT_ICON) or DEFAULT_ICON,
                     CONF_NOTES: user_input.get(CONF_NOTES, ""),
                     CONF_SCHEDULE_TYPE: user_input.get(CONF_SCHEDULE_TYPE, DEFAULT_SCHEDULE_TYPE),
                     CONF_SCHEDULE_DAYS: schedule_days,
                     CONF_ADAPTIVE: user_input.get(CONF_ADAPTIVE, False),
                     CONF_NOTIFY_WHEN_DUE: user_input.get(CONF_NOTIFY_WHEN_DUE, False),
-                    CONF_NOTIFY_ADVANCE_DAYS: user_input.get(CONF_NOTIFY_ADVANCE_DAYS, DEFAULT_NOTIFY_ADVANCE_DAYS),
+                    CONF_NOTIFY_ADVANCE_DAYS: int(user_input.get(CONF_NOTIFY_ADVANCE_DAYS, DEFAULT_NOTIFY_ADVANCE_DAYS)),
                 }
             )
             return self.async_create_entry(title="", data={})
