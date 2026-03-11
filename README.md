@@ -1,102 +1,262 @@
-# Chore Reminder (Home Assistant Integration)
+# 🧹 Chore Reminder — Home Assistant Integration
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
+[![version](https://img.shields.io/badge/version-2.1.0-blue.svg)](https://github.com/lou270/ha-chore-reminder/releases)
+[![HA](https://img.shields.io/badge/Home%20Assistant-2024.1%2B-brightgreen.svg)](https://www.home-assistant.io/)
 
-Intégration personnalisée pour gérer vos tâches ménagères récurrentes dans Home Assistant.
+Gérez toutes vos tâches ménagères récurrentes directement depuis Home Assistant, inspiré de [Donetick](https://donetick.com/) — sans application externe.
 
-## Fonctionnalités
--   **Tâches Récurrentes** : Configurez des tâches avec une fréquence en jours.
--   **Suivi** : Calcul automatique des jours restants avant la prochaine échéance.
--   **Alertes** : Capteur "Problème" quand la tâche est à faire.
--   **Action** : Bouton pour marquer comme fait.
--   **Icônes/Images** : Personnalisables pour chaque tâche (Icône MDI ou URL d'image).
+---
 
-## Installation
+## ✨ Fonctionnalités
 
-### Via HACS
-1.  Ajoutez ce dépôt en tant que **Dépôt personnalisé** dans HACS.
-2.  Installez l'intégration **Chore Reminder**.
-3.  Redémarrez Home Assistant.
+| Fonctionnalité | Détail |
+|---|---|
+| 📋 **Liste de tâches native** | Basée sur l'entité `todo`, compatible avec la carte `todo-list` de HA |
+| 🔄 **Planification flexible** | Par intervalle (N jours), hebdomadaire (jours fixes) ou mensuelle (jour du mois) |
+| 🧠 **Fréquence adaptive** | Apprend de votre rythme réel grâce à l'historique des completions |
+| 📊 **Historique** | Dernières 20 completions enregistrées automatiquement |
+| 🏷️ **Catégories** | Organisez vos tâches par catégorie (cuisine, jardin, animaux…) |
+| 🔔 **Notifications** | Rappels automatiques à 8h chaque matin via `persistent_notification` |
+| 📅 **Calendrier** | Vue calendrier de toutes les prochaines échéances |
+| 📡 **Capteurs** | Prochaine tâche + compteur de tâches en retard |
+| 💾 **Stockage persistant** | Toutes les données sauvegardées en JSON via le store HA |
 
-### Manuelle
-1.  Copiez `custom_components/chore_reminder` dans votre dossier `config/custom_components/`.
-2.  Redémarrez Home Assistant.
+---
 
-## Configuration
-1.  Allez dans **Paramètres** > **Appareils et services**.
-2.  Cliquez sur **Ajouter une intégration**.
-3.  Cherchez **"Chore Reminder"**.
-4.  Ajoutez vos tâches (Nom, Fréquence, Icône).
+## 📦 Installation
 
-## Exemples de Cartes (Lovelace UI)
+### Via HACS (recommandé)
 
-### 1. Affichage détaillé d'une ou plusieurs tâches
-Voici un exemple de carte utilisant la disposition `custom:mushroom-entity-card` (si vous utilisez Mushroom) ou une simple carte `Entities` pour afficher le nom, les jours restants, l'état d'alerte et le bouton d'action au même endroit.
+1. Ouvrez HACS dans Home Assistant
+2. **Intégrations** → menu ⋮ → **Dépôts personnalisés**
+3. Ajoutez `https://github.com/lou270/ha-chore-reminder` (catégorie : **Intégration**)
+4. Installez **Chore Reminder**
+5. Redémarrez Home Assistant
 
-*Assurez-vous de remplacer `nom_de_la_corvee` par l'ID réel généré par Home Assistant.*
+### Installation manuelle
 
-```yaml
-type: entities
-title: 🧹 Mes Corvées
-entities:
-  # --- Corvée 1 ---
-  - type: custom:multiple-entity-row # Nécessite la carte HACS 'multiple-entity-row'
-    entity: sensor.nom_de_la_corvee_jours_restants
-    name: Nettoyer la cuisine
-    icon: mdi:broom
-    state_color: true
-    entities:
-      - entity: binary_sensor.nom_de_la_corvee_a_faire
-        name: false
-        icon: mdi:alert-circle
-      - entity: button.nom_de_la_corvee_terminer
-        name: Fait !
-        icon: mdi:check
-  # --- Corvée 2 ---
-  - type: custom:multiple-entity-row
-    entity: sensor.une_autre_corvee_jours_restants
-    name: Arroser les plantes
-    icon: mdi:watering-can
-    state_color: true
-    entities:
-      - entity: binary_sensor.une_autre_corvee_a_faire
-        name: false
-      - entity: button.une_autre_corvee_terminer
-        name: Fait !
-        icon: mdi:check
+1. Copiez le dossier `custom_components/chore_reminder/` dans votre dossier `config/custom_components/`
+2. Redémarrez Home Assistant
+
+---
+
+## ⚙️ Configuration
+
+### Première installation
+
+1. **Paramètres** → **Appareils et services** → **Ajouter une intégration**
+2. Cherchez **Chore Reminder** et cliquez sur **Configurer**
+3. Cliquez sur **Soumettre** — l'intégration ne s'installe qu'une seule fois
+
+### Ajouter / Modifier / Supprimer des tâches
+
+1. **Paramètres** → **Appareils et services** → **Chore Reminder** → **Configurer**
+2. Choisissez une action :
+   - ➕ **Ajouter une tâche**
+   - ✏️ **Modifier une tâche**
+   - 🗑️ **Supprimer une tâche**
+
+### Paramètres d'une tâche
+
+| Paramètre | Description |
+|---|---|
+| **Nom** | Nom de la tâche |
+| **Catégorie** | Texte libre (ex: `cuisine`, `jardin`) |
+| **Type de planification** | `interval` / `weekly` / `monthly` |
+| **Fréquence** | Nombre de jours (pour le type `interval`) |
+| **Jours** | Jours de la semaine (0=Lun…6=Dim) ou jour du mois (pour `weekly`/`monthly`), séparés par des virgules |
+| **Fréquence adaptive** | Calcule automatiquement la fréquence idéale depuis l'historique |
+| **Icône** | Icône MDI (ex: `mdi:broom`) |
+| **Notes** | Informations complémentaires |
+| **Notifications** | Active les rappels à 8h |
+| **Jours d'avance** | Nombre de jours avant l'échéance pour envoyer la notification |
+
+### Exemples de planification
+
+```
+Type: interval, Fréquence: 7       → Toutes les semaines
+Type: weekly, Jours: 0, 3          → Tous les lundis et jeudis
+Type: monthly, Jours: 1            → Le 1er de chaque mois
+Type: interval + adaptive activé   → Fréquence calculée sur l'historique
 ```
 
-*Astuce : Si vous ne voulez pas installer de cartes personnalisées, voici la version native simple :*
+---
+
+## 🃏 Cartes Lovelace
+
+### Liste des tâches (native, recommandée)
+
 ```yaml
-type: entities
-title: 🧹 Mes Corvées
-entities:
-  - entity: sensor.nom_de_la_corvee_jours_restants
-  - entity: button.nom_de_la_corvee_terminer
+type: todo-list
+entity: todo.taches_menageres
 ```
 
-### 2. Le Calendrier des tâches
-Puisque l'intégration génère un calendrier complet prédisant les échéances à venir de toutes vos corvées, vous pouvez l'afficher avec la carte native `calendar` :
+La carte native affiche automatiquement :
+- Le nom de la tâche
+- La catégorie avec 🏷️
+- L'urgence : `⚠️ En retard de Xj` / `📅 Aujourd'hui` / `📅 Dans Xj`
+- La date d'échéance
+- ✅ Cocher = marquer comme fait (remet le compteur à zéro)
+
+### Valider une tâche depuis la liste
+
+Cliquez sur le **cercle** à gauche du nom → la tâche est marquée comme faite, `last_completed` est mis à jour, la prochaine échéance est recalculée.
+
+### Changer la date d'échéance
+
+Cliquez sur la tâche → icône calendrier → choisissez une nouvelle date. Le planning est décalé en conséquence (`last_completed = nouvelle_date - fréquence`).
+
+### Ajouter une tâche depuis la liste
+
+Utilisez le champ en bas de la carte. La fréquence sera par défaut de 7 jours ; modifiez-la ensuite via les Options.
+
+### Calendrier
 
 ```yaml
 type: calendar
-title: 📅 Planning des Corvées
 entities:
-  - calendar.nom_de_la_corvee_calendrier
-  - calendar.une_autre_corvee_calendrier
-initial_view: dayGridMonth
+  - calendar.calendrier
 ```
 
-### 3. Carte Chore Reminder (Recommandée)
-L'intégration inclut sa propre carte Lovelace ! Elle affiche **automatiquement** toutes vos corvées triées par urgence avec un code couleur (🔴 en retard, 🟠 urgent, 🟢 OK) et un bouton de validation intégré.
+### Capteur prochaine tâche
 
-**Installation de la ressource (une seule fois) :**
-1. Allez dans **Paramètres** > **Tableaux de bord** > **⋮** (menu 3 points en haut à droite) > **Ressources**
-2. Ajoutez `/chore_reminder/chore-reminder-card.js` avec le type **Module JavaScript**
-
-**Utilisation :**
 ```yaml
-type: custom:chore-reminder-card
-title: 📋 Mes Corvées
-max_items: 10
+type: entity
+entity: sensor.prochaine_tache
 ```
+
+Attributs disponibles : `chore_name`, `chore_icon`, `chore_category`, `next_due`, `days_remaining`, `total_chores`, `overdue_count`, `categories`
+
+### Capteur tâches en retard
+
+```yaml
+type: entity
+entity: sensor.taches_en_retard
+```
+
+Utile pour les automations et les badges de tableau de bord.
+
+---
+
+## 🤖 Automations
+
+### Badge d'alerte personnalisé
+
+```yaml
+type: mushroom-chips-card
+chips:
+  - type: entity
+    entity: sensor.taches_en_retard
+    icon: mdi:alert-circle
+    icon_color: red
+    tap_action:
+      action: navigate
+      navigation_path: /lovelace/corvees
+```
+
+### Notification sur mobile
+
+```yaml
+automation:
+  - alias: "Alerte corvée critique"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.taches_en_retard
+        above: 0
+    action:
+      - service: notify.mobile_app_mon_telephone
+        data:
+          title: "🧹 Corvées en retard"
+          message: "{{ states('sensor.taches_en_retard') }} tâche(s) en retard !"
+```
+
+---
+
+## 📡 Entités créées
+
+| Entité | Type | Description |
+|---|---|---|
+| `todo.taches_menageres` | Todo | Liste complète de toutes les tâches |
+| `sensor.prochaine_tache` | Sensor | Jours restants pour la tâche la plus urgente |
+| `sensor.taches_en_retard` | Sensor | Nombre de tâches en retard |
+| `calendar.calendrier` | Calendar | Calendrier de toutes les prochaines échéances |
+
+---
+
+## 🔄 Migration depuis v1.x
+
+> ⚠️ La v2.0+ utilise une architecture différente (une seule instance au lieu d'une par tâche).
+
+1. **Supprimez** l'ancienne intégration Chore Reminder
+2. Supprimez le dossier `__pycache__` si présent
+3. Mettez à jour les fichiers
+4. Redémarrez Home Assistant
+5. Réinstallez l'intégration (une seule fois)
+6. Recréez vos tâches via le menu **Options**
+
+---
+
+## 🛠️ Développement
+
+```
+custom_components/chore_reminder/
+├── __init__.py          # Setup de l'intégration, notifications
+├── const.py             # Constantes
+├── store.py             # Stockage persistant + logique métier
+├── config_flow.py       # Flux de configuration et d'options
+├── todo.py              # Entité liste de tâches
+├── sensor.py            # Capteurs (prochaine tâche, retard)
+├── calendar.py          # Entité calendrier
+├── notify.py            # Vérification quotidienne et notifications
+└── translations/        # Traductions FR / EN
+```
+
+### Données stockées
+
+Les données sont sauvegardées dans `.storage/chore_reminder.chores` (JSON) :
+
+```json
+{
+  "id": "uuid",
+  "name": "Litière",
+  "category": "animaux",
+  "icon": "mdi:cat",
+  "schedule_type": "interval",
+  "frequency": 3,
+  "adaptive": true,
+  "last_completed": "2026-03-10T18:00:00+01:00",
+  "completion_history": ["2026-03-07T...", "2026-03-04T..."],
+  "notify_when_due": true,
+  "notify_advance_days": 1
+}
+```
+
+---
+
+## 📝 Changelog
+
+### v2.1.0
+- ✨ Fréquence adaptive (médiane de l'historique)
+- ✨ Historique des completions (20 dernières)
+- ✨ Planification flexible : hebdomadaire et mensuelle
+- ✨ Catégories / Tags
+- ✨ Notifications quotidiennes à 8h
+- ✨ Capteur `sensor.taches_en_retard`
+
+### v2.0.0
+- ✨ Architecture centralisée (une seule instance)
+- ✨ Intégration native `todo` (liste de tâches HA)
+- ✨ Stockage JSON persistant
+- ✨ Calendrier global
+- 🗑️ Suppression de `binary_sensor` et `button`
+
+### v1.x
+- Architecture par corvée (une config entry par tâche)
+- Carte Lovelace custom
+
+---
+
+## 📄 Licence
+
+MIT — © [lou270](https://github.com/lou270)
