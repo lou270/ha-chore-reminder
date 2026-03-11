@@ -44,10 +44,28 @@ WEEKDAYS = {
     "6": "Dimanche",
 }
 
+def _days_to_str(days: list[int]) -> str:
+    """Convert a list of day numbers to a comma-separated string."""
+    return ", ".join(str(d) for d in days)
+
+
+def _str_to_days(s: str) -> list[int]:
+    """Parse a comma-separated string of numbers to a list of ints."""
+    result = []
+    for part in s.split(","):
+        part = part.strip()
+        if part.isdigit():
+            result.append(int(part))
+    return result
+
+
 def _chore_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
     """Build the chore add/edit schema with optional defaults."""
     d = defaults or {}
     schedule_type = d.get(CONF_SCHEDULE_TYPE, DEFAULT_SCHEDULE_TYPE)
+    # schedule_days is stored as list[int] but shown as a comma-separated string
+    raw_days = d.get(CONF_SCHEDULE_DAYS, [])
+    days_default = _days_to_str(raw_days) if isinstance(raw_days, list) else str(raw_days)
     return vol.Schema({
         vol.Required(CONF_NAME, default=d.get(CONF_NAME, "")): str,
         vol.Optional(CONF_CATEGORY, default=d.get(CONF_CATEGORY, "")): str,
@@ -57,9 +75,7 @@ def _chore_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
             SCHEDULE_TYPE_MONTHLY,
         ]),
         vol.Optional(CONF_FREQUENCY, default=d.get(CONF_FREQUENCY, DEFAULT_FREQUENCY)): vol.All(int, vol.Range(min=1)),
-        vol.Optional(CONF_SCHEDULE_DAYS, default=d.get(CONF_SCHEDULE_DAYS, [])): vol.All(
-            list, [vol.All(int, vol.Range(min=0, max=31))]
-        ),
+        vol.Optional(CONF_SCHEDULE_DAYS, default=days_default): str,
         vol.Optional(CONF_ADAPTIVE, default=d.get(CONF_ADAPTIVE, False)): bool,
         vol.Optional(CONF_ICON, default=d.get(CONF_ICON, DEFAULT_ICON)): str,
         vol.Optional(CONF_NOTES, default=d.get(CONF_NOTES, "")): str,
@@ -123,9 +139,7 @@ class ChoreOptionsFlow(config_entries.OptionsFlow):
         """Add a new chore."""
         if user_input is not None:
             store = self._get_store()
-            schedule_days = user_input.get(CONF_SCHEDULE_DAYS, [])
-            if isinstance(schedule_days, str):
-                schedule_days = [int(d.strip()) for d in schedule_days.split(",") if d.strip().isdigit()]
+            schedule_days = _str_to_days(user_input.get(CONF_SCHEDULE_DAYS, ""))
 
             await store.async_add_chore(
                 name=user_input[CONF_NAME],
@@ -176,9 +190,7 @@ class ChoreOptionsFlow(config_entries.OptionsFlow):
             return self.async_abort(reason="chore_not_found")
 
         if user_input is not None:
-            schedule_days = user_input.get(CONF_SCHEDULE_DAYS, [])
-            if isinstance(schedule_days, str):
-                schedule_days = [int(d.strip()) for d in schedule_days.split(",") if d.strip().isdigit()]
+            schedule_days = _str_to_days(user_input.get(CONF_SCHEDULE_DAYS, ""))
 
             await store.async_update_chore(
                 self._selected_chore_id,
