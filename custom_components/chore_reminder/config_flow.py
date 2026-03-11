@@ -65,7 +65,7 @@ def _chore_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
         vol.Optional(CONF_NOTES, default=d.get(CONF_NOTES, "")): str,
         vol.Optional(CONF_NOTIFY_WHEN_DUE, default=d.get(CONF_NOTIFY_WHEN_DUE, False)): bool,
         vol.Optional(CONF_NOTIFY_ADVANCE_DAYS, default=d.get(CONF_NOTIFY_ADVANCE_DAYS, DEFAULT_NOTIFY_ADVANCE_DAYS)): vol.All(int, vol.Range(min=0, max=30)),
-    })
+    }, extra=vol.REMOVE_EXTRA)
 
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
