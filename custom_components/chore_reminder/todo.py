@@ -159,13 +159,17 @@ class ChoreTodoListEntity(TodoListEntity):
         if item.summary is not None:
             update[CONF_NAME] = item.summary
 
-        # Handle description change (strip injected status prefix)
+        # Handle description change (strip ALL injected parts: urgency prefix and category tag)
         if item.description is not None:
             desc = item.description
+            # Strip urgency prefix (⚠️ or 📅)
             for prefix in ("⚠️", "📅"):
                 if desc.startswith(prefix):
                     desc = desc.split(" · ", 1)[1] if " · " in desc else ""
                     break
+            # Strip injected category tag (🏷️) if present at start
+            if desc.startswith("🏷️"):
+                desc = desc.split(" · ", 1)[1] if " · " in desc else ""
             update[CONF_NOTES] = desc
 
         # Handle due date change → recalculate last_completed
