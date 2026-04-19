@@ -23,6 +23,7 @@ from .const import (
     CONF_ADAPTIVE,
     CONF_NOTIFY_WHEN_DUE,
     CONF_NOTIFY_ADVANCE_DAYS,
+    CONF_NOTIFY_SERVICE,
     DEFAULT_FREQUENCY,
     DEFAULT_ICON,
     DEFAULT_SCHEDULE_TYPE,
@@ -151,10 +152,10 @@ class ChoreOptionsFlow(config_entries.OptionsFlow):
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Show main menu: add / edit / delete."""
+        """Show main menu: add / edit / delete / notifications."""
         return self.async_show_menu(
             step_id="init",
-            menu_options=["add_chore", "edit_chore", "delete_chore"],
+            menu_options=["add_chore", "edit_chore", "delete_chore", "configure_notifications"],
         )
 
     # ── Add ───────────────────────────────────────────────────────────────────
@@ -179,7 +180,7 @@ class ChoreOptionsFlow(config_entries.OptionsFlow):
                 notify_when_due=user_input.get(CONF_NOTIFY_WHEN_DUE, False),
                 notify_advance_days=user_input.get(CONF_NOTIFY_ADVANCE_DAYS, DEFAULT_NOTIFY_ADVANCE_DAYS),
             )
-            return self.async_create_entry(title="", data={})
+            return self.async_create_entry(title="", data={**self.config_entry.options})
 
         return self.async_show_form(
             step_id="add_chore",
@@ -233,7 +234,7 @@ class ChoreOptionsFlow(config_entries.OptionsFlow):
                     CONF_NOTIFY_ADVANCE_DAYS: int(user_input.get(CONF_NOTIFY_ADVANCE_DAYS, DEFAULT_NOTIFY_ADVANCE_DAYS)),
                 }
             )
-            return self.async_create_entry(title="", data={})
+            return self.async_create_entry(title="", data={**self.config_entry.options})
 
         return self.async_show_form(
             step_id="edit_chore_details",
@@ -254,8 +255,37 @@ class ChoreOptionsFlow(config_entries.OptionsFlow):
 
         if user_input is not None:
             await store.async_remove_chore(user_input[CONF_CHORE_ID])
-            return self.async_create_entry(title="", data={})
+            return self.async_create_entry(title="", data={**self.config_entry.options})
 
         options = {c[CONF_CHORE_ID]: c[CONF_NAME] for c in chores}
         schema = vol.Schema({vol.Required(CONF_CHORE_ID): vol.In(options)})
         return self.async_show_form(step_id="delete_chore", data_schema=schema)
+
+    # ── Global notification settings ──────────────────────────────────────────
+
+    async def async_step_configure_notifications(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Configure the global notification service for mobile push."""
+        if user_input is not None:
+            return self.async_create_entry(
+                title="",
+                data={
+                    **self.config_entry.options,
+                    CONF_NOTIFY_SERVICE: user_input.get(CONF_NOTIFY_SERVICE, ""),
+                },
+            )
+
+        current = self.config_entry.options.get(CONF_NOTIFY_SERVICE, "")
+        schema = vol.Schema(
+            {
+                vol.Optional(CONF_NOTIFY_SERVICE, default=current): selector.TextSelector(
+                    selector.TextSelectorConfig(type=selector.TextSelectorType.TEXT)
+                ),
+            }
+        )
+        return self.async_show_form(
+            step_id="configure_notifications",
+            data_schema=schema,
+            description_placeholders={"example": "notify.mobile_app_mon_telephone"},
+        )

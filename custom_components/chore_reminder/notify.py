@@ -14,6 +14,7 @@ from .const import (
     CONF_CHORE_ID,
     CONF_NOTIFY_WHEN_DUE,
     CONF_NOTIFY_ADVANCE_DAYS,
+    CONF_NOTIFY_SERVICE,
 )
 from .store import ChoreStore
 
@@ -60,11 +61,12 @@ async def _async_check_and_notify(hass: HomeAssistant, entry: ConfigEntry) -> No
         days = store.days_remaining(chore_id)
 
         if days <= advance_days:
-            _send_notification(hass, name, days)
+            notify_service = entry.options.get(CONF_NOTIFY_SERVICE, "")
+            _send_notification(hass, name, days, notify_service)
 
 
-def _send_notification(hass: HomeAssistant, name: str, days: int) -> None:
-    """Send a persistent notification for a due chore."""
+def _send_notification(hass: HomeAssistant, name: str, days: int, notify_service: str = "") -> None:
+    """Send a persistent notification and optionally a mobile push for a due chore."""
     if days < 0:
         message = f"⚠️ **{name}** est en retard de {abs(days)} jour(s) !"
         title = f"Corvée en retard : {name}"
@@ -91,4 +93,16 @@ def _send_notification(hass: HomeAssistant, name: str, days: int) -> None:
             },
         )
     )
+
+    if notify_service:
+        domain, _, service = notify_service.partition(".")
+        if domain and service:
+            hass.async_create_task(
+                hass.services.async_call(
+                    domain,
+                    service,
+                    {"title": title, "message": message},
+                )
+            )
+
     _LOGGER.info("Notification sent for chore '%s' (days_remaining=%d)", name, days)

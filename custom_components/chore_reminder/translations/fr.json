@@ -17,7 +17,8 @@
                 "menu_options": {
                     "add_chore": "➕ Ajouter une tâche",
                     "edit_chore": "✏️ Modifier une tâche",
-                    "delete_chore": "🗑️ Supprimer une tâche"
+                    "delete_chore": "🗑️ Supprimer une tâche",
+                    "configure_notifications": "🔔 Configurer les notifications"
                 }
             },
             "add_chore": {
@@ -64,6 +65,13 @@
                 "title": "Supprimer une tâche",
                 "data": {
                     "id": "Tâche à supprimer"
+                }
+            },
+            "configure_notifications": {
+                "title": "Configurer les notifications",
+                "description": "Entrez le service de notification mobile (ex: {example}). Laissez vide pour désactiver les notifications mobiles.",
+                "data": {
+                    "notify_service": "Service de notification (ex: notify.mobile_app_mon_telephone)"
                 }
             }
         },

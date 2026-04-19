@@ -17,7 +17,8 @@
                 "menu_options": {
                     "add_chore": "➕ Add a chore",
                     "edit_chore": "✏️ Edit a chore",
-                    "delete_chore": "🗑️ Delete a chore"
+                    "delete_chore": "🗑️ Delete a chore",
+                    "configure_notifications": "🔔 Configure notifications"
                 }
             },
             "add_chore": {
@@ -64,6 +65,13 @@
                 "title": "Delete a chore",
                 "data": {
                     "id": "Chore to delete"
+                }
+            },
+            "configure_notifications": {
+                "title": "Configure notifications",
+                "description": "Enter the mobile notification service (e.g. {example}). Leave empty to disable mobile notifications.",
+                "data": {
+                    "notify_service": "Notification service (e.g. notify.mobile_app_my_phone)"
                 }
             }
         },

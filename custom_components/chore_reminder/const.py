@@ -28,6 +28,7 @@ SCHEDULE_TYPE_MONTHLY = "monthly"
 # Notifications
 CONF_NOTIFY_WHEN_DUE = "notify_when_due"
 CONF_NOTIFY_ADVANCE_DAYS = "notify_advance_days"
+CONF_NOTIFY_SERVICE = "notify_service"
 
 # Defaults
 DEFAULT_FREQUENCY = 7
