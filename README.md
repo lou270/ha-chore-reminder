@@ -1,117 +1,128 @@
 # 🧹 Chore Reminder — Home Assistant Integration
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
-[![version](https://img.shields.io/badge/version-2.1.0-blue.svg)](https://github.com/lou270/ha-chore-reminder/releases)
-[![HA](https://img.shields.io/badge/Home%20Assistant-2024.1%2B-brightgreen.svg)](https://www.home-assistant.io/)
+[![version](https://img.shields.io/badge/version-2.2.0-blue.svg)](https://github.com/lou270/ha-chore-reminder/releases)
+[![HA](https://img.shields.io/badge/Home%20Assistant-2026.2%2B-brightgreen.svg)](https://www.home-assistant.io/)
 
-Gérez toutes vos tâches ménagères récurrentes directement depuis Home Assistant, inspiré de [Donetick](https://donetick.com/) — sans application externe.
+Manage all your recurring chores directly from Home Assistant, inspired by [Donetick](https://donetick.com/) — no external app required.
 
 ---
 
-## ✨ Fonctionnalités
+## ✨ Features
 
-| Fonctionnalité | Détail |
+| Feature | Details |
 |---|---|
-| 📋 **Liste de tâches native** | Basée sur l'entité `todo`, compatible avec la carte `todo-list` de HA |
-| 🔄 **Planification flexible** | Par intervalle (N jours), hebdomadaire (jours fixes) ou mensuelle (jour du mois) |
-| 🧠 **Fréquence adaptive** | Apprend de votre rythme réel grâce à l'historique des completions |
-| 📊 **Historique** | Dernières 20 completions enregistrées automatiquement |
-| 🏷️ **Catégories** | Organisez vos tâches par catégorie (cuisine, jardin, animaux…) |
-| 🔔 **Notifications** | Rappels automatiques à 8h chaque matin via `persistent_notification` |
-| 📅 **Calendrier** | Vue calendrier de toutes les prochaines échéances |
-| 📡 **Capteurs** | Prochaine tâche + compteur de tâches en retard |
-| 💾 **Stockage persistant** | Toutes les données sauvegardées en JSON via le store HA |
+| 📋 **Native todo list** | Based on the `todo` entity, compatible with HA's built-in `todo-list` card |
+| 🔄 **Flexible scheduling** | By interval (every N days), weekly (fixed weekdays) or monthly (day of month) |
+| 🧠 **Adaptive frequency** | Learns from your actual completion rhythm using history |
+| 📊 **History** | Last 20 completions recorded automatically |
+| 🏷️ **Categories** | Organize chores by category (kitchen, garden, pets…) |
+| 🔔 **Notifications** | Daily reminders at 8 AM — persistent notification + optional mobile push |
+| 📅 **Calendar** | Calendar view of all upcoming due dates |
+| 📡 **Sensors** | Next chore + overdue chore counter |
+| 💾 **Persistent storage** | All data saved as JSON via the HA store |
 
 ---
 
 ## 📦 Installation
 
-### Via HACS (recommandé)
+### Via HACS (recommended)
 
-1. Ouvrez HACS dans Home Assistant
-2. **Intégrations** → menu ⋮ → **Dépôts personnalisés**
-3. Ajoutez `https://github.com/lou270/ha-chore-reminder` (catégorie : **Intégration**)
-4. Installez **Chore Reminder**
-5. Redémarrez Home Assistant
+1. Open HACS in Home Assistant
+2. **Integrations** → ⋮ menu → **Custom repositories**
+3. Add `https://github.com/lou270/ha-chore-reminder` (category: **Integration**)
+4. Install **Chore Reminder**
+5. Restart Home Assistant
 
-### Installation manuelle
+### Manual installation
 
-1. Copiez le dossier `custom_components/chore_reminder/` dans votre dossier `config/custom_components/`
-2. Redémarrez Home Assistant
+1. Copy the `custom_components/chore_reminder/` folder into your `config/custom_components/` directory
+2. Restart Home Assistant
 
 ---
 
 ## ⚙️ Configuration
 
-### Première installation
+### First installation
 
-1. **Paramètres** → **Appareils et services** → **Ajouter une intégration**
-2. Cherchez **Chore Reminder** et cliquez sur **Configurer**
-3. Cliquez sur **Soumettre** — l'intégration ne s'installe qu'une seule fois
+1. **Settings** → **Devices & services** → **Add integration**
+2. Search for **Chore Reminder** and click **Configure**
+3. Click **Submit** — the integration is installed only once
 
-### Ajouter / Modifier / Supprimer des tâches
+### Add / Edit / Delete chores
 
-1. **Paramètres** → **Appareils et services** → **Chore Reminder** → **Configurer**
-2. Choisissez une action :
-   - ➕ **Ajouter une tâche**
-   - ✏️ **Modifier une tâche**
-   - 🗑️ **Supprimer une tâche**
+1. **Settings** → **Devices & services** → **Chore Reminder** → **Configure**
+2. Choose an action:
+   - ➕ **Add a chore**
+   - ✏️ **Edit a chore**
+   - 🗑️ **Delete a chore**
+   - 🔔 **Configure notifications**
 
-### Paramètres d'une tâche
+### Chore parameters
 
-| Paramètre | Description |
+| Parameter | Description |
 |---|---|
-| **Nom** | Nom de la tâche |
-| **Catégorie** | Texte libre (ex: `cuisine`, `jardin`) |
-| **Type de planification** | `interval` / `weekly` / `monthly` |
-| **Fréquence** | Nombre de jours (pour le type `interval`) |
-| **Jours** | Jours de la semaine (0=Lun…6=Dim) ou jour du mois (pour `weekly`/`monthly`), séparés par des virgules |
-| **Fréquence adaptive** | Calcule automatiquement la fréquence idéale depuis l'historique |
-| **Icône** | Icône MDI (ex: `mdi:broom`) |
-| **Notes** | Informations complémentaires |
-| **Notifications** | Active les rappels à 8h |
-| **Jours d'avance** | Nombre de jours avant l'échéance pour envoyer la notification |
+| **Name** | Chore name |
+| **Category** | Free text (e.g. `kitchen`, `garden`) |
+| **Schedule type** | `interval` / `weekly` / `monthly` |
+| **Frequency** | Number of days (for `interval` type) |
+| **Days** | Weekdays (0=Mon…6=Sun) or day of month (for `weekly`/`monthly`), comma-separated |
+| **Adaptive frequency** | Automatically computes the ideal frequency from completion history |
+| **Icon** | MDI icon (e.g. `mdi:broom`) |
+| **Notes** | Additional information |
+| **Enable notifications** | Enables daily reminders at 8 AM |
+| **Days in advance** | How many days before the due date to send the notification |
 
-### Exemples de planification
+### Scheduling examples
 
 ```
-Type: interval, Fréquence: 7       → Toutes les semaines
-Type: weekly, Jours: 0, 3          → Tous les lundis et jeudis
-Type: monthly, Jours: 1            → Le 1er de chaque mois
-Type: interval + adaptive activé   → Fréquence calculée sur l'historique
+Type: interval, Frequency: 7       → Every week
+Type: weekly,   Days: 0, 3         → Every Monday and Thursday
+Type: monthly,  Days: 1            → On the 1st of each month
+Type: interval + adaptive enabled  → Frequency computed from history
 ```
+
+### Mobile notifications
+
+Go to **Configure → 🔔 Configure notifications** and enter your notify service name (found under **Settings → Devices & services → Companion App**):
+
+```
+notify.mobile_app_my_phone
+```
+
+Leave the field empty to disable mobile push. Persistent notifications are always sent regardless of this setting.
 
 ---
 
-## 🃏 Cartes Lovelace
+## 🃏 Lovelace cards
 
-### Liste des tâches (native, recommandée)
+### Todo list (native, recommended)
 
 ```yaml
 type: todo-list
 entity: todo.taches_menageres
 ```
 
-La carte native affiche automatiquement :
-- Le nom de la tâche
-- La catégorie avec 🏷️
-- L'urgence : `⚠️ En retard de Xj` / `📅 Aujourd'hui` / `📅 Dans Xj`
-- La date d'échéance
-- ✅ Cocher = marquer comme fait (remet le compteur à zéro)
+The native card automatically displays:
+- The chore name
+- The category with 🏷️
+- Urgency: `⚠️ X days late` / `📅 Today` / `📅 In X days`
+- The due date
+- ✅ Checking = mark as done (resets the counter)
 
-### Valider une tâche depuis la liste
+### Completing a chore from the list
 
-Cliquez sur le **cercle** à gauche du nom → la tâche est marquée comme faite, `last_completed` est mis à jour, la prochaine échéance est recalculée.
+Click the **circle** to the left of the name → the chore is marked as done, `last_completed` is updated, and the next due date is recalculated.
 
-### Changer la date d'échéance
+### Changing the due date
 
-Cliquez sur la tâche → icône calendrier → choisissez une nouvelle date. Le planning est décalé en conséquence (`last_completed = nouvelle_date - fréquence`).
+Click the chore → calendar icon → pick a new date. The schedule shifts accordingly (`last_completed = new_date - frequency`).
 
-### Ajouter une tâche depuis la liste
+### Adding a chore from the list
 
-Utilisez le champ en bas de la carte. La fréquence sera par défaut de 7 jours ; modifiez-la ensuite via les Options.
+Use the input field at the bottom of the card. The frequency defaults to 7 days; adjust it afterwards via Options.
 
-### Calendrier
+### Calendar
 
 ```yaml
 type: calendar
@@ -119,29 +130,29 @@ entities:
   - calendar.calendrier
 ```
 
-### Capteur prochaine tâche
+### Next chore sensor
 
 ```yaml
 type: entity
 entity: sensor.prochaine_tache
 ```
 
-Attributs disponibles : `chore_name`, `chore_icon`, `chore_category`, `next_due`, `days_remaining`, `total_chores`, `overdue_count`, `categories`
+Available attributes: `chore_name`, `chore_icon`, `chore_category`, `next_due`, `days_remaining`, `total_chores`, `overdue_count`, `categories`
 
-### Capteur tâches en retard
+### Overdue chores sensor
 
 ```yaml
 type: entity
 entity: sensor.taches_en_retard
 ```
 
-Utile pour les automations et les badges de tableau de bord.
+Useful for automations and dashboard badges.
 
 ---
 
 ## 🤖 Automations
 
-### Badge d'alerte personnalisé
+### Custom alert badge
 
 ```yaml
 type: mushroom-chips-card
@@ -155,72 +166,72 @@ chips:
       navigation_path: /lovelace/corvees
 ```
 
-### Notification sur mobile
+### Mobile notification on overdue chores
 
 ```yaml
 automation:
-  - alias: "Alerte corvée critique"
+  - alias: "Critical chore alert"
     trigger:
       - platform: numeric_state
         entity_id: sensor.taches_en_retard
         above: 0
     action:
-      - service: notify.mobile_app_mon_telephone
+      - service: notify.mobile_app_my_phone
         data:
-          title: "🧹 Corvées en retard"
-          message: "{{ states('sensor.taches_en_retard') }} tâche(s) en retard !"
+          title: "🧹 Overdue chores"
+          message: "{{ states('sensor.taches_en_retard') }} chore(s) overdue!"
 ```
 
 ---
 
-## 📡 Entités créées
+## 📡 Created entities
 
-| Entité | Type | Description |
+| Entity | Type | Description |
 |---|---|---|
-| `todo.taches_menageres` | Todo | Liste complète de toutes les tâches |
-| `sensor.prochaine_tache` | Sensor | Jours restants pour la tâche la plus urgente |
-| `sensor.taches_en_retard` | Sensor | Nombre de tâches en retard |
-| `calendar.calendrier` | Calendar | Calendrier de toutes les prochaines échéances |
+| `todo.taches_menageres` | Todo | Full list of all chores |
+| `sensor.prochaine_tache` | Sensor | Days remaining for the most urgent chore |
+| `sensor.taches_en_retard` | Sensor | Number of overdue chores |
+| `calendar.calendrier` | Calendar | Calendar of all upcoming due dates |
 
 ---
 
-## 🔄 Migration depuis v1.x
+## 🔄 Migration from v1.x
 
-> ⚠️ La v2.0+ utilise une architecture différente (une seule instance au lieu d'une par tâche).
+> ⚠️ v2.0+ uses a different architecture (single instance instead of one per chore).
 
-1. **Supprimez** l'ancienne intégration Chore Reminder
-2. Supprimez le dossier `__pycache__` si présent
-3. Mettez à jour les fichiers
-4. Redémarrez Home Assistant
-5. Réinstallez l'intégration (une seule fois)
-6. Recréez vos tâches via le menu **Options**
+1. **Delete** the old Chore Reminder integration
+2. Remove the `__pycache__` folder if present
+3. Update the files
+4. Restart Home Assistant
+5. Reinstall the integration (once)
+6. Recreate your chores via the **Options** menu
 
 ---
 
-## 🛠️ Développement
+## 🛠️ Development
 
 ```
 custom_components/chore_reminder/
-├── __init__.py          # Setup de l'intégration, notifications
-├── const.py             # Constantes
-├── store.py             # Stockage persistant + logique métier
-├── config_flow.py       # Flux de configuration et d'options
-├── todo.py              # Entité liste de tâches
-├── sensor.py            # Capteurs (prochaine tâche, retard)
-├── calendar.py          # Entité calendrier
-├── notify.py            # Vérification quotidienne et notifications
-└── translations/        # Traductions FR / EN
+├── __init__.py          # Integration setup
+├── const.py             # Constants
+├── store.py             # Persistent storage + business logic
+├── config_flow.py       # Configuration and options flow
+├── todo.py              # Todo list entity
+├── sensor.py            # Sensors (next chore, overdue)
+├── calendar.py          # Calendar entity
+├── notify.py            # Daily check and notifications
+└── translations/        # FR / EN translations
 ```
 
-### Données stockées
+### Stored data
 
-Les données sont sauvegardées dans `.storage/chore_reminder.chores` (JSON) :
+Data is saved in `.storage/chore_reminder.chores` (JSON):
 
 ```json
 {
   "id": "uuid",
-  "name": "Litière",
-  "category": "animaux",
+  "name": "Cat litter",
+  "category": "pets",
   "icon": "mdi:cat",
   "schedule_type": "interval",
   "frequency": 3,
@@ -232,31 +243,43 @@ Les données sont sauvegardées dans `.storage/chore_reminder.chores` (JSON) :
 }
 ```
 
+The global notify service is stored in the config entry options:
+
+```json
+{
+  "notify_service": "notify.mobile_app_my_phone"
+}
+```
+
 ---
 
 ## 📝 Changelog
 
+### v2.2.0
+- ✨ Native mobile push notifications — configure a `notify.*` service directly in the integration options
+- ✨ New **🔔 Configure notifications** menu in Options
+
 ### v2.1.0
-- ✨ Fréquence adaptive (médiane de l'historique)
-- ✨ Historique des completions (20 dernières)
-- ✨ Planification flexible : hebdomadaire et mensuelle
-- ✨ Catégories / Tags
-- ✨ Notifications quotidiennes à 8h
-- ✨ Capteur `sensor.taches_en_retard`
+- ✨ Adaptive frequency (median of completion history)
+- ✨ Completion history (last 20)
+- ✨ Flexible scheduling: weekly and monthly
+- ✨ Categories / Tags
+- ✨ Daily notifications at 8 AM
+- ✨ `sensor.taches_en_retard` overdue sensor
 
 ### v2.0.0
-- ✨ Architecture centralisée (une seule instance)
-- ✨ Intégration native `todo` (liste de tâches HA)
-- ✨ Stockage JSON persistant
-- ✨ Calendrier global
-- 🗑️ Suppression de `binary_sensor` et `button`
+- ✨ Centralised architecture (single instance)
+- ✨ Native `todo` integration (HA todo list)
+- ✨ Persistent JSON storage
+- ✨ Global calendar
+- 🗑️ Removed `binary_sensor` and `button`
 
 ### v1.x
-- Architecture par corvée (une config entry par tâche)
-- Carte Lovelace custom
+- Per-chore architecture (one config entry per chore)
+- Custom Lovelace card
 
 ---
 
-## 📄 Licence
+## 📄 License
 
 MIT — © [lou270](https://github.com/lou270)
